@@ -123,12 +123,21 @@
             font-size: 1em;
             color: #606770;
             margin-top: 10px;
+            animation: pulse 2s ease-in-out infinite alternate;
         }
-        .status-LIVE {
-            color: #fa383e;
+        @keyframes pulse {
+            0% {
+                color: #606770;
+            }
+            100% {
+                color: #fa383e;
+            }
+        }
+        .status-live {
             font-weight: 700;
             text-transform: uppercase;
         }
+       
         .play-icon {
             position: absolute;
             top: 50%;
