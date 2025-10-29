@@ -1,13 +1,20 @@
+
 from flask import Flask, jsonify, render_template
 import requests
 from bs4 import BeautifulSoup
 import re
 from urllib.parse import unquote
 import json
+from flask_socketio import SocketIO, emit
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'your_secret_key' # Replace with a strong secret key
+socketio = SocketIO(app)
 
 base_url = "https://fancode.bdixtv24.com/"
+
+# Global counter for connected users
+connected_users = 0
 
 def process_page(url):
     response = requests.get(url, timeout=10)
@@ -71,5 +78,19 @@ def get_matches():
     match_list = process_page(base_url)
     return jsonify(match_list)
 
+@socketio.on('connect')
+def handle_connect():
+    global connected_users
+    connected_users += 1
+    emit('user_count', {'count': connected_users}, broadcast=True)
+    print(f"Client connected. Total users: {connected_users}")
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    global connected_users
+    connected_users -= 1
+    emit('user_count', {'count': connected_users}, broadcast=True)
+    print(f"Client disconnected. Total users: {connected_users}")
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    socketio.run(app, debug=True)

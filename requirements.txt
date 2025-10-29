@@ -2,3 +2,6 @@ requests
 BeautifulSoup4
 Flask
 gunicorn
+Flask-SocketIO
+python-engineio
+python-socketio
