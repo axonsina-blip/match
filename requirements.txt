@@ -5,3 +5,5 @@ gunicorn
 Flask-SocketIO
 python-engineio
 python-socketio
+APScheduler
+lxml
