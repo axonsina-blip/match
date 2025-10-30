@@ -49,10 +49,10 @@ if __name__ == "__main__":
     c.execute("SELECT COUNT(*) FROM matches")
     count = c.fetchone()[0]
     conn.close()
+    update_matches_db()    
 
     if count == 0:
         print("Database is empty. Populating it for the first time...")
-        update_matches_db()
 
     start_worker()
     socketio.run(app, debug=True)
