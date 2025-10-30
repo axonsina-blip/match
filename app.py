@@ -51,8 +51,5 @@ if __name__ == "__main__":
     conn.close()
     update_matches_db()    
 
-    if count == 0:
-        print("Database is empty. Populating it for the first time...")
-
-    start_worker()
+    
     socketio.run(app, debug=True)
