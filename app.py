@@ -15,6 +15,7 @@ connected_users = 0
 
 @app.route('/')
 def index():
+    update_matches_db()
     return render_template('index.html')
 
 @app.route('/api/matches')
