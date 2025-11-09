@@ -43,13 +43,13 @@ def handle_disconnect():
 
 if __name__ == "__main__":
     init_db()
+    update_matches_db()    
     # Check if the database is empty
     conn = sqlite3.connect('matches.db')
     c = conn.cursor()
     c.execute("SELECT COUNT(*) FROM matches")
     count = c.fetchone()[0]
     conn.close()
-    update_matches_db()    
 
     
     socketio.run(app, debug=True)
