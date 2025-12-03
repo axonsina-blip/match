@@ -106,6 +106,9 @@
         font-size: 4rem;
         color: var(--text-secondary);
       }
+      .play-icon-red {
+        color: red;
+      }
       
       .item-card img {
         width: 100%;
@@ -142,15 +145,7 @@
     
     <main class="flex-grow-1">
         <div class="ad-container-top text-center my-3">
-            <script type="text/javascript">
-                atOptions = {
-                    'key' : 'c6bcfb368fb53d174a939db874870337',
-                    'format' : 'iframe',
-                    'height' : 90,
-                    'width' : 728,
-                    'params' : {}
-                };
-            </script>
+            <!-- Ad space -->
         </div>
 
         <div id="loader"></div>
@@ -191,16 +186,20 @@
         const tvGrid = document.getElementById("tv-preview-grid");
 
         // --- Navigation ---
-        function openPlayerPage(item, allItems) {
+        function openPlayerPage(item) {
             const isTv = "logo" in item;
-            const streamUrl = isTv ? item.url : item.m3u8_link;
-            const title = isTv ? item.name : item.title;
-            const type = isTv ? 'tv' : 'sports';
-            
-            if (streamUrl) {
-                window.location.href = `/play?src=${encodeURIComponent(streamUrl)}&title=${encodeURIComponent(title)}&type=${type}`;
+            if (isTv) {
+                if (item.id) {
+                    window.location.href = `/play/tv/${item.id}`;
+                } else {
+                    alert("Could not find channel ID.");
+                }
             } else {
-                alert("No stream available for this item.");
+                if (item.id) {
+                    window.location.href = `/play/sport/${item.id}`;
+                } else {
+                    alert("Could not find match ID.");
+                }
             }
         }
 
@@ -208,13 +207,13 @@
         const showLoader = () => { mainView.style.display = "none"; loader.style.display = "block"; };
         const hideLoader = () => { mainView.style.display = "block"; loader.style.display = "none"; };
 
-        function createMatchCard(match, allMatches) {
+        function createMatchCard(match) {
           const cardWrapper = document.createElement("div");
           cardWrapper.className = "col-lg-3 col-md-4 col-sm-6 gy-4";
           const card = document.createElement("div");
           card.className = "item-card h-100";
           if (match.status === "LIVE" && match.m3u8_link) {
-            card.addEventListener("click", () => openPlayerPage(match, allMatches));
+            card.addEventListener("click", () => openPlayerPage(match));
           }
           
           let imageOrIconHtml;
@@ -235,12 +234,12 @@
           return cardWrapper;
         }
 
-        function createTvCard(channel, allChannels) {
+        function createTvCard(channel) {
           const cardWrapper = document.createElement("div");
           cardWrapper.className = "col-lg-3 col-md-4 col-sm-6 gy-4";
           const card = document.createElement("div");
           card.className = "item-card h-100";
-          card.addEventListener("click", () => openPlayerPage(channel, allChannels));
+          card.addEventListener("click", () => openPlayerPage(channel));
 
           let imageOrIconHtml;
           if (channel.logo && (channel.logo.startsWith('http://') || channel.logo.startsWith('https://'))) {
@@ -271,7 +270,7 @@
                 // Render Sports Preview
                 const liveMatches = allMatches.filter(m => m.status === 'LIVE');
                 liveMatches.slice(0, 4).forEach(match => {
-                    sportsGrid.appendChild(createMatchCard(match, allMatches));
+                    sportsGrid.appendChild(createMatchCard(match));
                 });
                 if (liveMatches.length === 0) {
                     sportsGrid.innerHTML = '<p>No live matches at the moment.</p>';
@@ -280,7 +279,7 @@
                 // Render TV Preview
                 allTvChannels.slice(0, 4).forEach(channel => {
                     if (channel.name && channel.url) {
-                        tvGrid.appendChild(createTvCard(channel, allTvChannels));
+                        tvGrid.appendChild(createTvCard(channel));
                     }
                 });
                 if (allTvChannels.length === 0) {

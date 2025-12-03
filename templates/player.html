@@ -3,226 +3,199 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stremmer Player</title>
+    <title>{{ content.name }} - Stremmer</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #ffc107; /* Yellow */
-            --light-bg: #ffffff; /* White */
-            --card-bg: #ffffff;
-            --text-dark: #212529; /* Black */
-            --text-secondary: #6c757d;
-            --border-color: #f0f0f0;
+            --bs-dark-rgb: 33, 37, 41;
+            --bs-body-bg: #ffffff; /* White background */
+            --bs-body-color: #212121; /* Black text */
+            --primary-color-yellow: #ffc107; /* Yellow accent */
         }
+
         body {
-            background-color: var(--light-bg);
-            font-family: 'Inter', sans-serif;
-        }
-        .player-page-container {
-            max-width: 1700px;
-        }
-        .player-layout {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 30px;
-        }
-        @media (min-width: 992px) {
-            .player-layout {
-                grid-template-columns: 3fr 1fr;
-            }
+            background-color: var(--bs-body-bg);
+            color: var(--bs-body-color);
+            font-family: 'Roboto', sans-serif;
         }
 
         #video-container {
             width: 100%;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
+            background-color: #000; /* Video player background can remain black for contrast */
+            border-radius: 12px;
             overflow: hidden;
-            background-color: #000;
             aspect-ratio: 16/9;
         }
+
         #video-player {
             width: 100%;
             height: 100%;
         }
-        #video-title {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-top: 1.5rem;
-            color: var(--text-dark);
-        }
 
-        #related-content-sidebar {
-            height: 85vh;
-            overflow-y: auto;
-            padding-right: 15px;
+        #video-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 1rem;
+            color: var(--bs-body-color); /* Ensure title is black */
         }
         
-        #related-content-sidebar h4 {
-            font-weight: 700;
-            margin-bottom: 1rem;
-            font-size: 1.5rem;
+        .related-content-sidebar {
+            max-height: 85vh;
+            overflow-y: auto;
         }
 
-        .related-video-card {
+        .related-item {
             display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 10px;
+            margin-bottom: 0.75rem;
             cursor: pointer;
-            transition: background-color 0.2s;
-            border-radius: 12px;
-            padding: 10px;
-        }
-        .related-video-card:hover {
-            background-color: #f8f9fa;
-        }
-        .related-video-card .img-container, .related-video-card .icon-container {
-            width: 120px;
-            height: 68px;
-            flex-shrink: 0;
+            border: 1px solid #e0e0e0; /* Light gray border */
             border-radius: 8px;
-            background-color: #e9ecef;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        .related-item:hover {
+            background-color: #fffde7; /* Very light yellow on hover */
+        }
+
+        .related-thumbnail {
+            flex-shrink: 0;
+            width: 168px;
+            height: 94px;
+            border-radius: 8px 0 0 8px;
+            object-fit: cover;
+        }
+
+        .related-info {
+            padding: 0.5rem 1rem;
+        }
+
+        .related-title {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--bs-body-color); /* Ensure title is black */
+            margin-bottom: 0.25rem;
+        }
+
+        .related-thumbnail.icon-container {
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
+            background-color: #f0f0f0;
         }
-        .related-video-card .icon-container {
+
+        .related-thumbnail.icon-container .fa-solid {
             font-size: 2rem;
-            color: var(--text-secondary);
-        }
-        .related-video-card img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .related-video-card-info .title {
-            font-weight: 500;
-            color: #0f0f0f;
-            margin: 0;
-            font-size: 0.95rem;
+            color: #aaa;
         }
     </style>
 </head>
 <body class="d-flex flex-column min-vh-100">
     {% include 'header.html' %}
+    <main class="flex-grow-1 container-fluid mt-4">
+        <div class="row">
+            <!-- Main Player -->
+            <div class="col-lg-8">
+                <div id="video-container">
+                    <video id="video-player" controls autoplay></video>
+                </div>
+                <h2 id="video-title" class="mt-3">{{ content.name }}</h2>
+            </div>
 
-    <main class="flex-grow-1">
-        <div class="player-page-container container-fluid mt-4">
-            <div class="player-layout">
-                <div class="player-main">
-                    <div id="video-container">
-                        <video id="video-player" controls autoplay></video>
-                    </div>
-                    <h2 id="video-title" class="mt-3"></h2>
-                </div>
-                <div class="player-sidebar">
-                    <h4>Related</h4>
-                    <div id="related-content-sidebar">
-                        <p>Loading related content...</p>
-                    </div>
-                </div>
+            <!-- Related Content Sidebar -->
+            <div class="col-lg-4 related-content-sidebar">
+                <ul class="list-unstyled" id="related-content-list">
+                    {% for item in related_content %}
+                    <li>
+                        <div class="related-item related-link" data-id="{{ item.id }}" data-type="{{ item.type }}">
+                            {% if item.type == 'tv' %}
+                            <div class='related-thumbnail icon-container'><i class='fa-solid fa-tv'></i></div>
+                            {% else %}
+                            <img class="related-thumbnail" src="{{ item.image }}" onerror="this.outerHTML = '<div class=\'related-thumbnail icon-container\'><i class=\'fa-solid fa-futbol\'></i></div>';">
+                            {% endif %}
+                            <div class="related-info">
+                                <h5 class="related-title">{{ item.name }}</h5>
+                            </div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
             </div>
         </div>
     </main>
-
     {% include 'footer.html' %}
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const video = document.getElementById('video-player');
             const videoTitle = document.getElementById('video-title');
-            const relatedContainer = document.getElementById('related-content-sidebar');
-            const urlParams = new URLSearchParams(window.location.search);
-            
-            const originalSrc = urlParams.get('src');
-            const title = urlParams.get('title');
-            const type = urlParams.get('type');
+            const relatedContentList = document.getElementById('related-content-list');
+            let hls = new Hls();
 
-            // --- Set Title and Player Source ---
-            videoTitle.textContent = decodeURIComponent(title || 'Player');
-            document.title = decodeURIComponent(title || 'Stremmer Player');
-
-            if (originalSrc) {
-                const proxySrc = `/stream?url=${encodeURIComponent(originalSrc)}`;
-                
+            function playVideo(url, title) {
                 if (Hls.isSupported()) {
-                    const hls = new Hls();
-                    hls.loadSource(proxySrc);
+                    hls.destroy();
+                    hls = new Hls();
+                    hls.loadSource(url);
                     hls.attachMedia(video);
-                    hls.on(Hls.Events.MANIFEST_PARSED, function () {
-                        video.play();
-                    });
+                    hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
                 } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                    video.src = proxySrc;
-                    video.addEventListener('loadedmetadata', function () {
-                        video.play();
-                    });
+                    video.src = url;
+                    video.addEventListener('loadedmetadata', () => video.play());
                 }
+                videoTitle.textContent = title;
+                document.title = `${title} - Stremmer`;
             }
-
-            // --- Populate Related Content ---
-            async function populateRelatedContent() {
-                if (!type) {
-                    relatedContainer.innerHTML = ''; // Hide loading if no type
-                    return;
-                };
-
-                const apiUrl = type === 'tv' ? '/api/tv' : '/api/matches';
-                
-                try {
-                    const response = await fetch(apiUrl);
-                    const allItems = await response.json();
+            
+            function updateRelatedContent(relatedItems) {
+                relatedContentList.innerHTML = '';
+                relatedItems.forEach(item => {
+                    const li = document.createElement('li');
+                    let imageHtml;
+                    if (item.type === 'tv') {
+                        imageHtml = `<img class="related-thumbnail" src="${item.logo}" onerror="this.outerHTML = '<div class=\\'related-thumbnail icon-container\\'><i class=\\'fa-solid fa-tv\\'></i></div>';">`;
+                    } else {
+                        imageHtml = `<img class="related-thumbnail" src="${item.image}" onerror="this.outerHTML = '<div class=\\'related-thumbnail icon-container\\'><i class=\\'fa-solid fa-futbol\\'></i></div>';">`;
+                    }
                     
-                    relatedContainer.innerHTML = '';
-                    
-                    const relatedList = type === 'tv'
-                        ? allItems.filter(item => item.url !== originalSrc)
-                        : allItems.filter(item => item.status === 'LIVE' && item.m3u8_link !== originalSrc);
-
-                    relatedList.forEach(item => {
-                        const isTv = type === 'tv';
-                        const itemTitle = isTv ? item.name : item.title;
-                        
-                        let imageOrIconHtml;
-                        const originalImage = isTv ? item.logo : item.image;
-
-                        if (originalImage && (originalImage.startsWith('http://') || originalImage.startsWith('https://'))) {
-                            imageOrIconHtml = `<div class="img-container"><img src="${originalImage}" alt="${itemTitle}" onerror="this.parentElement.innerHTML = '<div class=\'icon-container\'><i class=\'fa-solid ${isTv ? 'fa-tv' : 'fa-futbol'}\'></i></div>';"></div>`;
-                        } else {
-                            imageOrIconHtml = `<div class="icon-container"><i class="fa-solid ${isTv ? 'fa-tv' : 'fa-futbol'}"></i></div>`;
-                        }
-
-                        const card = document.createElement('div');
-                        card.className = 'related-video-card';
-                        card.innerHTML = `
-                            ${imageOrIconHtml}
-                            <div class="related-video-card-info">
-                                <p class="title">${itemTitle}</p>
+                    const itemHtml = `
+                        <div class="related-item related-link" data-id="${item.id}" data-type="${item.type}">
+                            ${imageHtml}
+                            <div class="related-info">
+                                <h5 class="related-title">${item.name}</h5>
                             </div>
-                        `;
-                        
-                        card.addEventListener('click', () => {
-                            const streamUrl = isTv ? item.url : item.m3u8_link;
-                            if (streamUrl) {
-                                window.location.href = `/play?src=${encodeURIComponent(streamUrl)}&title=${encodeURIComponent(itemTitle)}&type=${type}`;
-                            }
-                        });
-
-                        relatedContainer.appendChild(card);
-                    });
-
-                } catch (e) {
-                    console.error("Failed to load related content:", e);
-                    relatedContainer.innerHTML = '<p>Could not load related content.</p>';
-                }
+                        </div>
+                    `;
+                    li.innerHTML = itemHtml;
+                    relatedContentList.appendChild(li);
+                });
             }
 
-            populateRelatedContent();
+            // Initial play
+            playVideo("{{ content.url }}", "{{ content.name }}");
+
+            // Event delegation for related content
+            relatedContentList.addEventListener('click', function(e) {
+                const link = e.target.closest('.related-link');
+                if (link) {
+                    e.preventDefault();
+                    const type = link.dataset.type;
+                    const contentId = link.dataset.id;
+                    
+                    fetch(`/api/play/${type}/${contentId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.content && data.content.url) {
+                                playVideo(data.content.url, data.content.name);
+                                updateRelatedContent(data.related);
+                                history.pushState(null, '', `/play/${type}/${contentId}`);
+                            }
+                        })
+                        .catch(err => console.error('Error fetching content data:', err));
+                }
+            });
         });
     </script>
 </body>

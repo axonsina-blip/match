@@ -33,15 +33,7 @@
     {% include 'header.html' %}
     <main class="flex-grow-1 container my-5">
         <div class="ad-container-top text-center my-3">
-            <script type="text/javascript">
-                atOptions = {
-                    'key' : 'c6bcfb368fb53d174a939db874870337',
-                    'format' : 'iframe',
-                    'height' : 90,
-                    'width' : 728,
-                    'params' : {}
-                };
-            </script>
+            <!-- Ad space -->
         </div>
         <div id="loader"></div>
         <h1 class="mb-4">Sports</h1>
@@ -55,15 +47,11 @@
             const contentGrid = document.getElementById("content-grid");
             const loader = document.getElementById("loader");
 
-            function openPlayerPage(item, allItems) {
-                const streamUrl = item.m3u8_link;
-                const title = item.title;
-                const type = 'sports';
-                
-                if (streamUrl) {
-                    window.location.href = `/play?src=${encodeURIComponent(streamUrl)}&title=${encodeURIComponent(title)}&type=${type}`;
+            function openPlayerPage(item) {
+                if (item.id) {
+                    window.location.href = `/play/sport/${item.id}`;
                 } else {
-                    alert("No stream available for this item.");
+                    alert("Could not find match ID.");
                 }
             }
 
@@ -76,7 +64,7 @@
                 const card = document.createElement("div");
                 card.className = "item-card h-100";
                 if (match.status === "LIVE" && match.m3u8_link) {
-                    card.addEventListener("click", () => openPlayerPage(match, allMatches));
+                    card.addEventListener("click", () => openPlayerPage(match));
                 }
 
                 let imageOrIconHtml;

@@ -21,6 +21,7 @@ def init_db():
             )
         ''')
         try:
+            # Ensure cookie column exists from older versions
             cursor.execute("ALTER TABLE tv_channels ADD COLUMN cookie TEXT;")
         except sqlite3.OperationalError:
             pass
@@ -82,7 +83,7 @@ def get_all_channels():
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         
-        cursor.execute("SELECT name, url, logo, cookie FROM tv_channels;")
+        cursor.execute("SELECT id, name, url, logo, cookie FROM tv_channels;")
         rows = cursor.fetchall()
         
         channels = [dict(row) for row in rows]
@@ -94,6 +95,27 @@ def get_all_channels():
             conn.close()
             
     return channels
+
+def get_channel_by_id(channel_id):
+    """Retrieves a single TV channel by its ID."""
+    channel = None
+    try:
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        
+        cursor.execute("SELECT id, name, url, logo, cookie FROM tv_channels WHERE id = ?;", (channel_id,))
+        row = cursor.fetchone()
+        if row:
+            channel = dict(row)
+            
+    except sqlite3.Error as e:
+        print(f"Database error while fetching channel by ID: {e}")
+    finally:
+        if conn:
+            conn.close()
+            
+    return channel
 
 def update_matches(matches):
     """Deletes all existing matches and replaces them with a new list."""
@@ -130,7 +152,7 @@ def get_all_matches():
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         
-        cursor.execute("SELECT title, description, image, status, category, start_time, m3u8_link FROM sports_matches;")
+        cursor.execute("SELECT id, title, description, image, status, category, start_time, m3u8_link FROM sports_matches;")
         rows = cursor.fetchall()
         
         matches = [dict(row) for row in rows]
@@ -142,3 +164,24 @@ def get_all_matches():
             conn.close()
             
     return matches
+
+def get_match_by_id(match_id):
+    """Retrieves a single sports match by its ID."""
+    match = None
+    try:
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        
+        cursor.execute("SELECT id, title, description, image, status, category, start_time, m3u8_link FROM sports_matches WHERE id = ?;", (match_id,))
+        row = cursor.fetchone()
+        if row:
+            match = dict(row)
+            
+    except sqlite3.Error as e:
+        print(f"Database error while fetching match by ID: {e}")
+    finally:
+        if conn:
+            conn.close()
+            
+    return match
