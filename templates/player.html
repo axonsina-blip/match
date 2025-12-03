@@ -148,8 +148,7 @@
             document.title = decodeURIComponent(title || 'Stremmer Player');
 
             if (originalSrc) {
-                // All streams now go through our proxy
-                const proxySrc = `/stream?url=${encodeURIComponent(decodeURIComponent(originalSrc))}`;
+                const proxySrc = `/stream?url=${encodeURIComponent(originalSrc)}`;
                 
                 if (Hls.isSupported()) {
                     const hls = new Hls();
@@ -168,7 +167,10 @@
 
             // --- Populate Related Content ---
             async function populateRelatedContent() {
-                if (!type) return;
+                if (!type) {
+                    relatedContainer.innerHTML = ''; // Hide loading if no type
+                    return;
+                };
 
                 const apiUrl = type === 'tv' ? '/api/tv' : '/api/matches';
                 
@@ -176,11 +178,11 @@
                     const response = await fetch(apiUrl);
                     const allItems = await response.json();
                     
-                    relatedContainer.innerHTML = ''; // Clear loading message
+                    relatedContainer.innerHTML = '';
                     
                     const relatedList = type === 'tv'
-                        ? allItems.filter(item => item.name !== decodeURIComponent(title))
-                        : allItems.filter(item => item.status === 'LIVE' && item.title !== decodeURIComponent(title));
+                        ? allItems.filter(item => item.url !== originalSrc)
+                        : allItems.filter(item => item.status === 'LIVE' && item.m3u8_link !== originalSrc);
 
                     relatedList.forEach(item => {
                         const isTv = type === 'tv';
@@ -207,7 +209,6 @@
                         card.addEventListener('click', () => {
                             const streamUrl = isTv ? item.url : item.m3u8_link;
                             if (streamUrl) {
-                                // The openPlayerPage logic is now simplified
                                 window.location.href = `/play?src=${encodeURIComponent(streamUrl)}&title=${encodeURIComponent(itemTitle)}&type=${type}`;
                             }
                         });

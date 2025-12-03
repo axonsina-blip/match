@@ -21,7 +21,6 @@ CANDY_API_URL = "https://raw.githubusercontent.com/hasanhabibmottakin/candy/main
 connected_users = 0
 
 def fetch_tv_channels():
-    """Fetches TV channel data from multiple JSON sources and updates the database."""
     print("Attempting to fetch and update TV channels from all sources...")
     
     combined_channels = []
@@ -40,7 +39,6 @@ def fetch_tv_channels():
                     channel["logo"] = "/static/tv.jpg"
                 channel["cookie"] = None # No cookie for this source
                 combined_channels.append(channel)
-        print(f"Successfully fetched {len(channels1)} channels from Mrgify.")
 
     except requests.exceptions.RequestException as e:
         print(f"Error fetching TV channels from Mrgify: {e}")
@@ -65,7 +63,6 @@ def fetch_tv_channels():
                     "cookie": channel.get("cookie")
                 }
                 combined_channels.append(formatted_channel)
-        print(f"Successfully fetched {len(channels2)} channels from Candy.")
         
     except requests.exceptions.RequestException as e:
         print(f"Error fetching TV channels from Candy: {e}")
@@ -80,7 +77,6 @@ def fetch_tv_channels():
 
 
 def fetch_and_process_sports_matches():
-    """Scrapes sports match data and updates the database."""
     print("Attempting to fetch and process sports matches...")
     try:
         response = requests.get(base_url, timeout=10)
@@ -260,8 +256,8 @@ if __name__ == "__main__":
 
     # Set up the scheduler
     scheduler = BackgroundScheduler()
-    scheduler.add_job(fetch_tv_channels, 'interval', hours=6)
-    scheduler.add_job(fetch_and_process_sports_matches, 'interval', minutes=3)
+    scheduler.add_job(fetch_tv_channels, 'interval', minutes=1)
+    scheduler.add_job(fetch_and_process_sports_matches, 'interval', minutes=1)
     scheduler.start()
     
     socketio.run(app, debug=True)
