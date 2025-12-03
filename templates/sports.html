@@ -42,7 +42,6 @@
                     'params' : {}
                 };
             </script>
-            <script type="text/javascript" src="//www.highperformanceformat.com/c6bcfb368fb53d174a939db874870337/invoke.js"></script>
         </div>
         <div id="loader"></div>
         <h1 class="mb-4">Sports</h1>
@@ -58,12 +57,11 @@
 
             function openPlayerPage(item, allItems) {
                 const streamUrl = item.m3u8_link;
+                const title = item.title;
+                const type = 'sports';
+                
                 if (streamUrl) {
-                    let url = `/play?src=${encodeURIComponent(streamUrl)}&title=${encodeURIComponent(item.title)}&type=sports`;
-                    if (item.cookie) {
-                        url += `&cookie=${encodeURIComponent(item.cookie)}`;
-                    }
-                    window.location.href = url;
+                    window.location.href = `/play?src=${encodeURIComponent(streamUrl)}&title=${encodeURIComponent(title)}&type=${type}`;
                 } else {
                     alert("No stream available for this item.");
                 }

@@ -1,10 +1,10 @@
-import random
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, request, Response
 import requests
 from bs4 import BeautifulSoup
 import re
-from urllib.parse import unquote
+from urllib.parse import unquote, urljoin, quote
 import json
+import random
 from flask_socketio import SocketIO, emit
 from apscheduler.schedulers.background import BackgroundScheduler
 import database
@@ -114,7 +114,7 @@ def fetch_and_process_sports_matches():
                         scripts = match_soup.find_all('script')
                         for script in scripts:
                             if script.string and "setupPlayer" in script.string:
-                                match_url_encoded = re.search(r'setupPlayer\("proxy\.php\?url=([^"]+)"', script.string)
+                                match_url_encoded = re.search(r'setupPlayer\("proxy\.php\?url=([^\"]+)"', script.string)
                                 if match_url_encoded:
                                     m3u8_link_encoded = match_url_encoded.group(1)
                                     m3u8_link = unquote(m3u8_link_encoded)
@@ -159,6 +159,64 @@ def live_tv():
 def play():
     return render_template('player.html')
 
+@app.route('/stream')
+def stream():
+    url = request.args.get('url')
+    original_url = request.args.get('original_url')
+
+    if not url:
+        return "Missing URL parameter", 400
+
+    lookup_url = original_url if original_url else url
+    
+    channels = database.get_all_channels()
+    channel_data = next((c for c in channels if c['url'] == lookup_url), None)
+
+    headers = {}
+    if channel_data and channel_data.get('cookie'):
+        headers['Cookie'] = channel_data['cookie']
+
+    try:
+        if '.m3u8' in url:
+            r = requests.get(url, headers=headers, timeout=10)
+            r.raise_for_status()
+            
+            lines = r.text.splitlines()
+            new_lines = []
+            
+            for line in lines:
+                line = line.strip()
+                if line.startswith('#EXT-X-KEY'):
+                    # Logic to find and rewrite the URI in the key tag
+                    uri_start = line.find('URI="') + 5
+                    uri_end = line.find('"', uri_start)
+                    key_uri = line[uri_start:uri_end]
+                    
+                    absolute_key_uri = urljoin(url, key_uri)
+                    
+                    proxied_key_uri = f"/stream?url={quote(absolute_key_uri)}&original_url={quote(url)}"
+                    new_line = line.replace(key_uri, proxied_key_uri)
+                    new_lines.append(new_line)
+                elif line and not line.startswith('#'):
+                    # This is a URL to a segment or another playlist
+                    absolute_segment_url = urljoin(url, line)
+                    proxied_segment = f"/stream?url={quote(absolute_segment_url)}&original_url={quote(url)}"
+                    new_lines.append(proxied_segment)
+                else:
+                    new_lines.append(line)
+            
+            return Response('\n'.join(new_lines), mimetype='application/x-mpegURL')
+
+        else: # .ts segments or .key files
+            req = requests.get(url, headers=headers, stream=True, timeout=10)
+            req.raise_for_status()
+            return Response(req.iter_content(chunk_size=1024), content_type=req.headers.get('content-type'))
+
+    except requests.exceptions.RequestException as e:
+        print(f"Error in proxy stream: {e}")
+        return "Error fetching stream content.", 500
+
+
 @app.route('/api/matches')
 def get_matches():
     matches = database.get_all_matches()
@@ -195,7 +253,7 @@ if __name__ == "__main__":
     # Set up the scheduler
     scheduler = BackgroundScheduler()
     scheduler.add_job(fetch_tv_channels, 'interval', hours=6)
-    scheduler.add_job(fetch_and_process_sports_matches, 'interval', minutes=1)
+    scheduler.add_job(fetch_and_process_sports_matches, 'interval', minutes=3)
     scheduler.start()
     
     socketio.run(app, debug=True)

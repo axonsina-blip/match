@@ -139,38 +139,27 @@
             const relatedContainer = document.getElementById('related-content-sidebar');
             const urlParams = new URLSearchParams(window.location.search);
             
-            const videoSrc = urlParams.get('src');
+            const originalSrc = urlParams.get('src');
             const title = urlParams.get('title');
             const type = urlParams.get('type');
-            const cookie = urlParams.get('cookie');
 
             // --- Set Title and Player Source ---
             videoTitle.textContent = decodeURIComponent(title || 'Player');
             document.title = decodeURIComponent(title || 'Stremmer Player');
 
-            if (videoSrc) {
+            if (originalSrc) {
+                // All streams now go through our proxy
+                const proxySrc = `/stream?url=${encodeURIComponent(decodeURIComponent(originalSrc))}`;
+                
                 if (Hls.isSupported()) {
-                    const hlsConfig = {};
-                    if (cookie) {
-                        hlsConfig.xhrSetup = function (xhr, url) {
-                            xhr.withCredentials = true; // Essential for sending cookies
-                            // The browser will automatically send the cookie for the domain.
-                            // For cross-domain requests, more setup might be needed, but this is a start.
-                        };
-                        // Note: Setting the cookie directly via setRequestHeader is often blocked by browsers for security reasons.
-                        // The backend that serves the stream should set the cookie on its response.
-                        // This client-side approach might not work for all server configurations.
-                        document.cookie = decodeURIComponent(cookie);
-                    }
-
-                    const hls = new Hls(hlsConfig);
-                    hls.loadSource(decodeURIComponent(videoSrc));
+                    const hls = new Hls();
+                    hls.loadSource(proxySrc);
                     hls.attachMedia(video);
                     hls.on(Hls.Events.MANIFEST_PARSED, function () {
                         video.play();
                     });
                 } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                    video.src = decodeURIComponent(videoSrc);
+                    video.src = proxySrc;
                     video.addEventListener('loadedmetadata', function () {
                         video.play();
                     });
@@ -201,7 +190,7 @@
                         const originalImage = isTv ? item.logo : item.image;
 
                         if (originalImage && (originalImage.startsWith('http://') || originalImage.startsWith('https://'))) {
-                            imageOrIconHtml = `<div class="img-container"><img src="${originalImage}" alt="${itemTitle}" onerror="this.parentElement.innerHTML = '<div class=\'icon-container\'><i class=\'fa-solid ${isTv ? 'fa-tv' : 'fa-futbol'}\'><\/i><\/div>';"></div>`;
+                            imageOrIconHtml = `<div class="img-container"><img src="${originalImage}" alt="${itemTitle}" onerror="this.parentElement.innerHTML = '<div class=\'icon-container\'><i class=\'fa-solid ${isTv ? 'fa-tv' : 'fa-futbol'}\'></i></div>';"></div>`;
                         } else {
                             imageOrIconHtml = `<div class="icon-container"><i class="fa-solid ${isTv ? 'fa-tv' : 'fa-futbol'}"></i></div>`;
                         }
@@ -218,11 +207,8 @@
                         card.addEventListener('click', () => {
                             const streamUrl = isTv ? item.url : item.m3u8_link;
                             if (streamUrl) {
-                                let url = `/play?src=${encodeURIComponent(streamUrl)}&title=${encodeURIComponent(itemTitle)}&type=${type}`;
-                                if (item.cookie) {
-                                    url += `&cookie=${encodeURIComponent(item.cookie)}`;
-                                }
-                                window.location.href = url;
+                                // The openPlayerPage logic is now simplified
+                                window.location.href = `/play?src=${encodeURIComponent(streamUrl)}&title=${encodeURIComponent(itemTitle)}&type=${type}`;
                             }
                         });
 
