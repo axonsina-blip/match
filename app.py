@@ -167,8 +167,11 @@ def stream():
     if not url:
         return "Missing URL parameter", 400
 
+    # The lookup_url should always be the master playlist URL.
+    # The first request has it in 'url', subsequent requests have it in 'original_url'.
     lookup_url = original_url if original_url else url
     
+    # Find the channel in the database to get the cookie.
     channels = database.get_all_channels()
     channel_data = next((c for c in channels if c['url'] == lookup_url), None)
 
@@ -177,6 +180,7 @@ def stream():
         headers['Cookie'] = channel_data['cookie']
 
     try:
+        # If it's a playlist, we need to parse it and rewrite URLs
         if '.m3u8' in url:
             r = requests.get(url, headers=headers, timeout=10)
             r.raise_for_status()
@@ -190,30 +194,34 @@ def stream():
                     # Logic to find and rewrite the URI in the key tag
                     uri_start = line.find('URI="') + 5
                     uri_end = line.find('"', uri_start)
-                    key_uri = line[uri_start:uri_end]
-                    
-                    absolute_key_uri = urljoin(url, key_uri)
-                    
-                    proxied_key_uri = f"/stream?url={quote(absolute_key_uri)}&original_url={quote(url)}"
-                    new_line = line.replace(key_uri, proxied_key_uri)
-                    new_lines.append(new_line)
+                    if uri_start > 4 and uri_end > uri_start:
+                        key_uri = line[uri_start:uri_end]
+                        absolute_key_uri = urljoin(url, key_uri)
+                        # Ensure the original master playlist URL is passed along
+                        proxied_key_uri = f"/stream?url={quote(absolute_key_uri)}&original_url={quote(lookup_url)}"
+                        new_line = line.replace(key_uri, proxied_key_uri)
+                        new_lines.append(new_line)
+                    else:
+                        new_lines.append(line)
                 elif line and not line.startswith('#'):
                     # This is a URL to a segment or another playlist
                     absolute_segment_url = urljoin(url, line)
-                    proxied_segment = f"/stream?url={quote(absolute_segment_url)}&original_url={quote(url)}"
+                    # Ensure the original master playlist URL is passed along
+                    proxied_segment = f"/stream?url={quote(absolute_segment_url)}&original_url={quote(lookup_url)}"
                     new_lines.append(proxied_segment)
                 else:
                     new_lines.append(line)
             
             return Response('\n'.join(new_lines), mimetype='application/x-mpegURL')
 
-        else: # .ts segments or .key files
+        # If it's a segment (.ts) or key file, just stream it with the cookie
+        else:
             req = requests.get(url, headers=headers, stream=True, timeout=10)
             req.raise_for_status()
             return Response(req.iter_content(chunk_size=1024), content_type=req.headers.get('content-type'))
 
     except requests.exceptions.RequestException as e:
-        print(f"Error in proxy stream: {e}")
+        print(f"Error in proxy stream for url {url}: {e}")
         return "Error fetching stream content.", 500
 
 
