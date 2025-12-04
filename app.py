@@ -29,7 +29,7 @@ def fetch_tv_channels():
         cleaned_channels = []
         for channel in channels:
             if "name" in channel and channel["name"]:
-                channel["name"] = re.sub(r'[^a-zA-Z0-9 ]', '', channel["name"]).strip()
+                channel["name"] = re.sub(r'[^a-zA-Z0-9/ ]', '', channel["name"]).strip()
                 if "logo" not in channel or not channel["logo"]:
                     channel["logo"] = "/static/tv.jpg"
                 cleaned_channels.append(channel)
