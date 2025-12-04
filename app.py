@@ -212,7 +212,7 @@ def play(content_type, content_id):
             related_content = [ch for ch in database.get_all_channels() if ch['id'] != content_id and ch.get('category') == content.get('category')]
             for item in related_content:
                 item['type'] = 'tv'
-            random.shuffle(related_content)
+            # random.shuffle(related_content)
     elif content_type == 'sport':
         content = database.get_match_by_id(content_id)
         if content:
@@ -238,13 +238,13 @@ def get_matches():
 @app.route('/api/tv')
 def get_tv_channels():
     channels = [ch for ch in database.get_all_channels() if ch.get('category') == 'Live TV']
-    random.shuffle(channels)
+    # random.shuffle(channels)
     return jsonify(channels)
 
 @app.route('/api/sport-tv')
 def get_sport_tv_channels():
     channels = [ch for ch in database.get_all_channels() if ch.get('category') == 'Sport TV']
-    random.shuffle(channels)
+    # random.shuffle(channels)
     return jsonify(channels)
 
 @app.route('/api/play/<string:content_type>/<int:content_id>')
@@ -259,7 +259,7 @@ def get_play_data(content_type, content_id):
             related_content = [ch for ch in database.get_all_channels() if ch['id'] != content_id and ch.get('category') == content.get('category')]
             for item in related_content:
                 item['type'] = 'tv'
-            random.shuffle(related_content)
+            # random.shuffle(related_content)
     elif content_type == 'sport':
         content = database.get_match_by_id(content_id)
         if content:
