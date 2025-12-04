@@ -17,12 +17,27 @@ def init_db():
                 name TEXT NOT NULL,
                 url TEXT NOT NULL UNIQUE,
                 logo TEXT,
-                cookie TEXT
+                cookie TEXT,
+                category TEXT,
+                referer TEXT,
+                origin TEXT
             )
         ''')
         try:
             # Ensure cookie column exists from older versions
             cursor.execute("ALTER TABLE tv_channels ADD COLUMN cookie TEXT;")
+        except sqlite3.OperationalError:
+            pass
+        try:
+            cursor.execute("ALTER TABLE tv_channels ADD COLUMN category TEXT;")
+        except sqlite3.OperationalError:
+            pass
+        try:
+            cursor.execute("ALTER TABLE tv_channels ADD COLUMN referer TEXT;")
+        except sqlite3.OperationalError:
+            pass
+        try:
+            cursor.execute("ALTER TABLE tv_channels ADD COLUMN origin TEXT;")
         except sqlite3.OperationalError:
             pass
 
@@ -55,11 +70,10 @@ def update_channels(channels):
         cursor = conn.cursor()
         
         cursor.execute("BEGIN TRANSACTION;")
-        cursor.execute("DELETE FROM tv_channels;")
         
-        insert_query = "INSERT INTO tv_channels (name, url, logo, cookie) VALUES (?, ?, ?, ?);"
+        insert_query = "INSERT OR REPLACE INTO tv_channels (name, url, logo, category, referer, origin) VALUES (?, ?, ?, ?, ?, ?);"
         channels_to_insert = [
-            (ch.get('name'), ch.get('url'), ch.get('logo'), ch.get('cookie'))
+            (ch.get('name'), ch.get('url'), ch.get('logo'), ch.get('category', 'Live TV'), ch.get('referer'), ch.get('origin'))
             for ch in channels if ch.get('name') and ch.get('url')
         ]
         
@@ -83,7 +97,7 @@ def get_all_channels():
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         
-        cursor.execute("SELECT id, name, url, logo, cookie FROM tv_channels;")
+        cursor.execute("SELECT id, name, url, logo, category, referer, origin FROM tv_channels;")
         rows = cursor.fetchall()
         
         channels = [dict(row) for row in rows]
@@ -104,7 +118,7 @@ def get_channel_by_id(channel_id):
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         
-        cursor.execute("SELECT id, name, url, logo, cookie FROM tv_channels WHERE id = ?;", (channel_id,))
+        cursor.execute("SELECT id, name, url, logo, category, referer, origin FROM tv_channels WHERE id = ?;", (channel_id,))
         row = cursor.fetchone()
         if row:
             channel = dict(row)

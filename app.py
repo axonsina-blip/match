@@ -1,8 +1,8 @@
-from flask import Flask, jsonify, render_template, abort
+from flask import Flask, jsonify, render_template, abort, request, Response
 import requests
 from bs4 import BeautifulSoup
 import re
-from urllib.parse import unquote
+from urllib.parse import unquote, urljoin, quote
 import json
 import random
 import time
@@ -16,6 +16,7 @@ app.config['SECRET_KEY'] = 'your_secret_key'
 # --- URL Constants ---
 base_url = "https://fancode.bdixtv24.com/"
 TV_CHANNELS_URL = "https://raw.githubusercontent.com/abusaeeidx/Mrgify-BDIX-IPTV/main/Channels_data.json"
+SPORT_TV_CHANNELS_URL = "https://raw.githubusercontent.com/abusaeeidx/CricHd-playlists-Auto-Update-permanent/main/api.json"
 
 def fetch_tv_channels():
     """Fetches TV channel data from a single source and updates the database."""
@@ -32,6 +33,7 @@ def fetch_tv_channels():
                 channel["name"] = re.sub(r'[^a-zA-Z0-9/ ]', '', channel["name"]).strip()
                 if "logo" not in channel or not channel["logo"]:
                     channel["logo"] = "/static/tv.jpg"
+                channel['category'] = 'Live TV'
                 cleaned_channels.append(channel)
         
         if cleaned_channels:
@@ -41,6 +43,29 @@ def fetch_tv_channels():
 
     except Exception as e:
         print(f"An error occurred in fetch_tv_channels: {e}")
+
+def fetch_sport_tv_channels():
+    """Fetches Sport TV channel data from a single source and updates the database."""
+    print("Attempting to fetch and update Sport TV channels...")
+    try:
+        response = requests.get(SPORT_TV_CHANNELS_URL, timeout=10)
+        response.raise_for_status()
+        channels = response.json()
+        
+        cleaned_channels = []
+        for channel in channels:
+            if "name" in channel and channel["link"]:
+                channel['url'] = channel.pop('link')
+                channel['category'] = 'Sport TV'
+                cleaned_channels.append(channel)
+        
+        if cleaned_channels:
+            database.update_channels(cleaned_channels)
+        else:
+            print("No sport tv channels found from source.")
+
+    except Exception as e:
+        print(f"An error occurred in fetch_sport_tv_channels: {e}")
 
 def process_sports_on_demand():
     """Scrapes sports match data on demand and returns it."""
@@ -91,6 +116,13 @@ def update_tv_channels_periodically():
         fetch_tv_channels()
         time.sleep(300)
 
+def update_sport_tv_channels_periodically():
+    """Periodically fetches and updates sport tv channels in the database."""
+    while True:
+        print("Periodically updating sport tv channels...")
+        fetch_sport_tv_channels()
+        time.sleep(300)
+
 def update_sports_periodically():
     """Periodically fetches and updates sports matches in the database."""
     while True:
@@ -100,10 +132,50 @@ def update_sports_periodically():
             database.update_matches(matches)
         time.sleep(120)
 
+def rewrite_m3u8(content, base_url, referer, origin):
+    lines = content.decode('utf-8', errors='ignore').split('\n')
+    rewritten_lines = []
+    for line in lines:
+        if line.strip().endswith('.ts') or line.strip().endswith('.m3u8'):
+            rewritten_lines.append(f"/stream?url={quote(urljoin(base_url, line))}&referer={quote(referer)}&origin={quote(origin)}")
+        else:
+            rewritten_lines.append(line)
+    return '\n'.join(rewritten_lines)
+
+@app.route('/stream')
+def stream():
+    url = request.args.get('url')
+    referer = request.args.get('referer', '')
+    origin = request.args.get('origin', '')
+
+    headers = {'User-Agent': 'Mozilla/5.0'}
+    if referer:
+        headers['Referer'] = referer
+    if origin:
+        headers['Origin'] = origin
+
+    try:
+        r = requests.get(url, headers=headers, stream=True, timeout=10)
+        r.raise_for_status()
+
+        content_type = r.headers.get('Content-Type', '')
+
+        if 'application/vnd.apple.mpegurl' in content_type or '.m3u8' in url:
+            rewritten_content = rewrite_m3u8(r.content, url, referer, origin)
+            return Response(rewritten_content, mimetype='application/vnd.apple.mpegurl', headers={'Access-Control-Allow-Origin': '*'})
+        
+        return Response(r.iter_content(chunk_size=1024), content_type=r.headers['Content-Type'], headers={'Access-Control-Allow-Origin': '*'})
+
+    except requests.exceptions.RequestException as e:
+        return f"Error fetching stream: {e}", 500
+
 # --- Main Routes ---
 @app.route('/')
 def index():
-    return render_template('index.html')
+    all_channels = database.get_all_channels()
+    live_tv_channels = [ch for ch in all_channels if ch.get('category') == 'Live TV']
+    sport_tv_channels = [ch for ch in all_channels if ch.get('category') == 'Sport TV']
+    return render_template('index.html', live_tv_channels=live_tv_channels, sport_tv_channels=sport_tv_channels)
 
 @app.route('/sports')
 def sports():
@@ -111,7 +183,13 @@ def sports():
 
 @app.route('/live-tv')
 def live_tv():
-    return render_template('tv.html')
+    channels = [ch for ch in database.get_all_channels() if ch.get('category') == 'Live TV']
+    return render_template('tv.html', channels=channels)
+
+@app.route('/sport-tv')
+def sport_tv():
+    channels = [ch for ch in database.get_all_channels() if ch.get('category') == 'Sport TV']
+    return render_template('sport_tv.html', channels=channels)
 
 @app.route('/play/<string:content_type>/<int:content_id>')
 def play(content_type, content_id):
@@ -121,7 +199,8 @@ def play(content_type, content_id):
         content = database.get_channel_by_id(content_id)
         if content:
             content['type'] = 'tv'
-            related_content = [ch for ch in database.get_all_channels() if ch['id'] != content_id]
+            content['url'] = f"/stream?url={quote(content['url'])}&referer={quote(content.get('referer') or '')}&origin={quote(content.get('origin') or '')}"
+            related_content = [ch for ch in database.get_all_channels() if ch['id'] != content_id and ch.get('category') == content.get('category')]
             for item in related_content:
                 item['type'] = 'tv'
             random.shuffle(related_content)
@@ -149,7 +228,13 @@ def get_matches():
 
 @app.route('/api/tv')
 def get_tv_channels():
-    channels = database.get_all_channels()
+    channels = [ch for ch in database.get_all_channels() if ch.get('category') == 'Live TV']
+    random.shuffle(channels)
+    return jsonify(channels)
+
+@app.route('/api/sport-tv')
+def get_sport_tv_channels():
+    channels = [ch for ch in database.get_all_channels() if ch.get('category') == 'Sport TV']
     random.shuffle(channels)
     return jsonify(channels)
 
@@ -161,7 +246,8 @@ def get_play_data(content_type, content_id):
         content = database.get_channel_by_id(content_id)
         if content:
             content['type'] = 'tv'
-            related_content = [ch for ch in database.get_all_channels() if ch['id'] != content_id]
+            content['url'] = f"/stream?url={quote(content['url'])}&referer={quote(content.get('referer') or '')}&origin={quote(content.get('origin') or '')}"
+            related_content = [ch for ch in database.get_all_channels() if ch['id'] != content_id and ch.get('category') == content.get('category')]
             for item in related_content:
                 item['type'] = 'tv'
             random.shuffle(related_content)
@@ -185,6 +271,7 @@ def init_app():
     database.init_db()
     # Periodically update TV channels
     threading.Thread(target=update_tv_channels_periodically).start()
+    threading.Thread(target=update_sport_tv_channels_periodically).start()
     # Periodically update sports matches
     threading.Thread(target=update_sports_periodically).start()
 

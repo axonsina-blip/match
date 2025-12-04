@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Stremmer - Sports</title>
+    <title>Stremmer - Sport TV</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet" />
@@ -73,19 +73,10 @@
       .item-title {
         font-size: 1rem;
         font-weight: 700;
-        margin-bottom: 0.5rem;
+        margin: 0;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-      }
-       .item-details {
-        font-size: 0.9em;
-        color: var(--text-secondary);
-      }
-      .item-status {
-        font-size: 0.9rem;
-        font-weight: 700;
-        color: #d9534f;
       }
 
       .play-icon-overlay {
@@ -115,7 +106,7 @@
                         'params' : {}
                     };
                 </script>
-                <script type="text/javascript" src="//www.highperformanceformat.com/c6bcfb368fb53d174a939db874870337/invoke.js"></script>
+                <script type="text/javascript" src="//www.highperformanceformat.com/c6bcfb368fb53d174a67d8d66be581/invoke.js"></script>
             </div>
             <!-- Mobile Ad -->
             <div class="d-block d-md-none">
@@ -123,7 +114,7 @@
                 <div id="container-b7968b10f22df277ecc62b56ccdd93e4"></div>
             </div>
         </div>
-        <h1 class="mb-4">Sports</h1>
+        <h1 class="mb-4">Sport TV</h1>
         <div class="ad-container-inline text-center my-3">
             <script type="text/javascript">
                 atOptions = {
@@ -137,7 +128,7 @@
             <script type="text/javascript" src="//www.highperformanceformat.com/893cede3e801fb8a637a67d8d66be581/invoke.js"></script>
         </div>
         <div id="loader"></div>
-        <div id="content-grid"></div>
+        <div id="content-grid" class="row g-4"></div>
     </main>
     {% include 'footer.html' %}
 
@@ -149,85 +140,52 @@
             const loader = document.getElementById("loader");
 
             function openPlayerPage(item) {
-                if (item.id) {
-                    window.location.href = `/play/sport/${item.id}`;
-                } else {
-                    alert("Could not find match ID.");
-                }
+                window.location.href = `/play/tv/${item.id}`;
             }
 
             const showLoader = () => { contentGrid.style.display = "none"; loader.style.display = "block"; };
-            const hideLoader = () => { contentGrid.style.display = "block"; loader.style.display = "none"; };
+            const hideLoader = () => { contentGrid.style.display = ""; loader.style.display = "none"; };
 
-            function createMatchCard(match) {
+            function createTvCard(channel) {
                 const cardWrapper = document.createElement("div");
                 cardWrapper.className = "col-lg-3 col-md-4 col-sm-6";
-                let imageHtml = `<div class="img-container"><i class="fa-solid fa-futbol"></i></div>`;
-                if (match.image) {
-                    imageHtml = `<div class="img-container"><img src="${match.image}" alt="${match.title}" onerror="this.outerHTML = '<div class=\\'img-container\\'><i class=\\'fa-solid fa-futbol\\'></i></div>';"></div>`;
+                let imageHtml = `<div class="img-container"><i class="fa-solid fa-tv"></i></div>`;
+                if (channel.logo) {
+                    imageHtml = `<div class="img-container"><img src="${channel.logo}" alt="${channel.name}" onerror="this.outerHTML = '<div class=\\'img-container\\'><i class=\\'fa-solid fa-tv\\'></i></div>';"></div>`;
                 }
-
+                
                 cardWrapper.innerHTML = `
                     <div class="item-card h-100">
                         ${imageHtml}
-                        ${match.status === "LIVE" ? '<div class="play-icon-overlay"><i class="fa-solid fa-play"></i></div>' : ""}
+                        <div class="play-icon-overlay"><i class="fa-solid fa-play"></i></div>
                         <div class="item-info">
-                            <div class="item-title">${match.title}</div>
-                            <div class="item-details">
-                                <p><strong>Category:</strong> ${match.category}</p>
-                                <p><strong>Start Time:</strong> ${match.start_time}</p>
-                            </div>
-                            <div class="item-status">${match.status}</div>
+                            <div class="item-title">${channel.name}</div>
                         </div>
                     </div>`;
-
-                if (match.status === "LIVE" && match.m3u8_link) {
-                    cardWrapper.firstElementChild.addEventListener("click", () => openPlayerPage(match));
-                }
+                
+                cardWrapper.firstElementChild.addEventListener("click", () => openPlayerPage(channel));
                 return cardWrapper;
             }
 
-            async function loadMatches() {
+            async function loadTvChannels() {
                 showLoader();
                 try {
-                    const response = await fetch("/api/matches");
-                    const allMatches = await response.json();
-                    contentGrid.innerHTML = `
-                        <h2 class="mb-4">Live Matches</h2>
-                        <div id="live-matches-grid" class="row g-4"></div>
-                        <h2 class="mt-5 mb-4">Upcoming Matches</h2>
-                        <div id="upcoming-matches-grid" class="row g-4"></div>`;
-                    const liveGrid = document.getElementById("live-matches-grid");
-                    const upcomingGrid = document.getElementById("upcoming-matches-grid");
-                    
-                    let liveCount = 0;
-                    let upcomingCount = 0;
-
-                    allMatches.forEach((match) => {
-                        const card = createMatchCard(match);
-                        if (match.status === "LIVE") {
-                            liveGrid.appendChild(card);
-                            liveCount++;
-                        } else {
-                            upcomingGrid.appendChild(card);
-                            upcomingCount++;
-                        }
-                    });
-
-                    if (liveCount === 0) {
-                        liveGrid.innerHTML = '<p>No live matches at the moment.</p>';
+                    const response = await fetch("/api/sport-tv");
+                    const allTvChannels = await response.json();
+                    if (allTvChannels.length === 0) {
+                        contentGrid.innerHTML = '<p class="text-center">No Sport TV channels available at the moment.</p>';
+                    } else {
+                        allTvChannels.forEach((channel) => {
+                            if (channel.name && channel.url) contentGrid.appendChild(createTvCard(channel));
+                        });
                     }
-                    if (upcomingCount === 0) {
-                        upcomingGrid.innerHTML = '<p>No upcoming matches at the moment.</p>';
-                    }
-
                 } catch (error) {
-                    contentGrid.innerHTML = '<p class="text-center text-danger">Failed to load matches.</p>';
+                    contentGrid.innerHTML = '<p class="text-center text-danger">Failed to load Sport TV channels.</p>';
                 } finally {
                     hideLoader();
                 }
             }
-            loadMatches();
+            loadTvChannels();
         });
     </script>
 </body>

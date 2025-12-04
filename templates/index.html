@@ -144,16 +144,49 @@
     {% include 'header.html' %}
     
     <main class="flex-grow-1">
+        <div class="ad-container-top text-center my-3">
+            <!-- Desktop Ad -->
+            <div class="d-none d-md-block">
+                <script type="text/javascript">
+                    atOptions = {
+                        'key' : 'c6bcfb368fb53d174a939db874870337',
+                        'format' : 'iframe',
+                        'height' : 90,
+                        'width' : 728,
+                        'params' : {}
+                    };
+                </script>
+                <script type="text/javascript" src="//www.highperformanceformat.com/c6bcfb368fb53d174a939db874870337/invoke.js"></script>
+            </div>
+            <!-- Mobile Ad -->
+            <div class="d-block d-md-none">
+                <script async="async" data-cfasync="false" src="//pl28181192.effectivegatecpm.com/b7968b10f22df277ecc62b56ccdd93e4/invoke.js"></script>
+                <div id="container-b7968b10f22df277ecc62b56ccdd93e4"></div>
+            </div>
+        </div>
+
         <div class="hero-section">
             <div class="container">
                 <h1>Welcome to Stremmer</h1>
                 <p>Your one-stop destination for live sports and TV channels.</p>
             </div>
         </div>
-
-        <div id="loader"></div>
+        
+        <div class="ad-container-inline text-center my-3">
+            <script type="text/javascript">
+                atOptions = {
+                    'key' : '893cede3e801fb8a637a67d8d66be581',
+                    'format' : 'iframe',
+                    'height' : 250,
+                    'width' : 300,
+                    'params' : {}
+                };
+            </script>
+            <script type="text/javascript" src="//www.highperformanceformat.com/893cede3e801fb8a637a67d8d66be581/invoke.js"></script>
+        </div>
 
         <div id="main-view" class="container mt-4" style="display: none;">
+          <div id="content-grid">
             <section id="sports-preview-section" class="mb-5">
                 <div class="section-header">
                     <h2>Live Sports</h2>
@@ -168,18 +201,26 @@
                 </div>
                 <div id="tv-preview-grid" class="row g-4"></div>
             </section>
+            <section id="sport-tv-preview-section" class="mb-5">
+                <div class="section-header">
+                    <h2>Sport TV</h2>
+                    <a href="/sport-tv" class="btn btn-view-all">View All</a>
+                </div>
+                <div id="sport-tv-preview-grid" class="row g-4"></div>
+            </section>
+          </div>
         </div>
     </main>
 
-    {% include 'footer.html' %}
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="text/javascript" src="//pl28185701.effectivegatecpm.com/f3/7d/e8/f37de80398b45c2353a10642acd72f18.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", function () {
         const mainView = document.getElementById("main-view");
         const loader = document.getElementById("loader");
         const sportsGrid = document.getElementById("sports-preview-grid");
         const tvGrid = document.getElementById("tv-preview-grid");
+        const sportTvGrid = document.getElementById("sport-tv-preview-grid");
 
         function openPlayerPage(item) {
             const isTv = "logo" in item;
@@ -237,13 +278,15 @@
         async function loadAllPreviews() {
             showLoader();
             try {
-                const [matchesRes, tvRes] = await Promise.all([
+                const [matchesRes, tvRes, sportTvRes] = await Promise.all([
                     fetch("/api/matches"),
-                    fetch("/api/tv")
+                    fetch("/api/tv"),
+                    fetch("/api/sport-tv")
                 ]);
 
-                allMatches = await matchesRes.json();
-                allTvChannels = await tvRes.json();
+                const allMatches = await matchesRes.json();
+                const allTvChannels = await tvRes.json();
+                const allSportTvChannels = await sportTvRes.json();
 
                 const liveMatches = allMatches.filter(m => m.status === 'LIVE');
                 liveMatches.slice(0, 4).forEach(match => {
@@ -262,10 +305,20 @@
                     tvGrid.innerHTML = '<p>No TV channels available at the moment.</p>';
                 }
 
+                allSportTvChannels.slice(0, 4).forEach(channel => {
+                    if (channel.name && channel.url) {
+                        sportTvGrid.appendChild(createTvCard(channel));
+                    }
+                });
+                if (allSportTvChannels.length === 0) {
+                    sportTvGrid.innerHTML = '<p>No Sport TV channels available at the moment.</p>';
+                }
+
             } catch (error) {
                 console.error("Failed to load previews:", error);
                 sportsGrid.innerHTML = '<p class="text-danger">Could not load sports content.</p>';
                 tvGrid.innerHTML = '<p class="text-danger">Could not load TV content.</p>';
+                sportTvGrid.innerHTML = '<p class="text-danger">Could not load Sport TV content.</p>';
             } finally {
                 hideLoader();
             }
