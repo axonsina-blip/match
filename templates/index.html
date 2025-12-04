@@ -4,9 +4,20 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Stremmer - Live Content</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet" />
+    <link rel="icon" href="/static/icon.png" />
+    <meta property="og:image" content="/static/logo.png" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap"
+      rel="stylesheet"
+    />
     <style>
       :root {
         --primary-color: #ffc107;
@@ -22,7 +33,7 @@
         background-color: var(--light-bg);
         color: var(--text-dark);
       }
-      
+
       .hero-section {
         text-align: center;
         padding: 4rem 1rem;
@@ -48,29 +59,29 @@
         margin-top: 3rem;
         margin-bottom: 1.5rem;
       }
-      
+
       .section-header h2 {
         font-weight: 700;
         font-size: 2rem;
       }
-      
+
       .btn-view-all {
-          background-color: var(--primary-color);
-          color: black;
-          font-weight: 500;
-          border-radius: 50px;
-          padding: 0.5rem 1.5rem;
-          transition: all 0.3s ease;
+        background-color: var(--primary-color);
+        color: black;
+        font-weight: 500;
+        border-radius: 50px;
+        padding: 0.5rem 1.5rem;
+        transition: all 0.3s ease;
       }
       .btn-view-all:hover {
-          background-color: #e0a800;
-          box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4);
+        background-color: #e0a800;
+        box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4);
       }
 
       .item-card {
         background-color: var(--card-bg);
         border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         overflow: hidden;
         cursor: pointer;
         transition: all 0.3s ease;
@@ -80,9 +91,9 @@
 
       .item-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
       }
-      
+
       .item-card .img-container {
         aspect-ratio: 16/9;
         background-color: #f0f0f0;
@@ -92,7 +103,7 @@
         font-size: 2.5rem;
         color: #ccc;
       }
-      
+
       .item-card img {
         width: 100%;
         height: 100%;
@@ -117,121 +128,136 @@
       }
 
       .play-icon-overlay {
-        position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-        display: flex; justify-content: center; align-items: center;
-        background-color: rgba(0,0,0,0.4);
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: rgba(0, 0, 0, 0.4);
         color: white;
         font-size: 3rem;
         opacity: 0;
         transition: opacity 0.3s ease;
       }
-      .item-card:hover .play-icon-overlay { opacity: 1; }
+      .item-card:hover .play-icon-overlay {
+        opacity: 1;
+      }
     </style>
   </head>
   <body class="d-flex flex-column min-vh-100">
     {% include 'header.html' %}
-    
+
     <main class="flex-grow-1">
-        <div class="ad-container-top text-center my-3">
-            <!-- Desktop Ad -->
-            <div class="d-none d-md-block">
-                <script type="text/javascript">
-                    atOptions = {
-                        'key' : 'c6bcfb368fb53d174a939db874870337',
-                        'format' : 'iframe',
-                        'height' : 90,
-                        'width' : 728,
-                        'params' : {}
-                    };
-                </script>
-                <script type="text/javascript" src="//www.highperformanceformat.com/c6bcfb368fb53d174a939db874870337/invoke.js"></script>
-            </div>
-            <!-- Mobile Ad -->
-            <div class="d-block d-md-none">
-                <script async="async" data-cfasync="false" src="//pl28181192.effectivegatecpm.com/b7968b10f22df277ecc62b56ccdd93e4/invoke.js"></script>
-                <div id="container-b7968b10f22df277ecc62b56ccdd93e4"></div>
-            </div>
+      <div class="ad-container-top text-center my-3">
+        <!-- Desktop Ad -->
+        <div class="d-none d-md-block">
+          <script type="text/javascript">
+            atOptions = {
+              key: "c6bcfb368fb53d174a939db874870337",
+              format: "iframe",
+              height: 90,
+              width: 728,
+              params: {},
+            };
+          </script>
+          <script
+            type="text/javascript"
+            src="//www.highperformanceformat.com/c6bcfb368fb53d174a939db874870337/invoke.js"
+          ></script>
         </div>
+        <!-- Mobile Ad -->
+        <div class="d-block d-md-none">
+          <script
+            async="async"
+            data-cfasync="false"
+            src="//pl28181192.effectivegatecpm.com/b7968b10f22df277ecc62b56ccdd93e4/invoke.js"
+          ></script>
+          <div id="container-b7968b10f22df277ecc62b56ccdd93e4"></div>
+        </div>
+      </div>
 
-        <div class="hero-section">
-            <div class="container">
-                <h1>Welcome to Stremmer</h1>
-                <p>Your one-stop destination for live sports and TV channels.</p>
+      <div id="main-view" class="container mt-4">
+        <div id="content-grid">
+          <section id="sports-preview-section" class="mb-5">
+            <div class="section-header">
+              <h2>Live Sports</h2>
+              <a href="/sports" class="btn btn-view-all">View All</a>
             </div>
-        </div>
-        
-        <div class="ad-container-inline text-center my-3">
-            <script type="text/javascript">
-                atOptions = {
-                    'key' : '893cede3e801fb8a637a67d8d66be581',
-                    'format' : 'iframe',
-                    'height' : 250,
-                    'width' : 300,
-                    'params' : {}
-                };
-            </script>
-            <script type="text/javascript" src="//www.highperformanceformat.com/893cede3e801fb8a637a67d8d66be581/invoke.js"></script>
-        </div>
+            <div id="sports-preview-grid" class="row g-4"></div>
+          </section>
 
-        <div id="main-view" class="container mt-4">
-          <div id="content-grid">
-            <section id="sports-preview-section" class="mb-5">
-                <div class="section-header">
-                    <h2>Live Sports</h2>
-                    <a href="/sports" class="btn btn-view-all">View All</a>
-                </div>
-                <div id="sports-preview-grid" class="row g-4">
-                  
-                </div>
-            </section>
-              <div class="ad-container-inline text-center my-3">
+          <section id="tv-preview-section" class="mb-5">
+            <div class="section-header">
+              <h2>Live TV</h2>
+              <a href="/live-tv" class="btn btn-view-all">View All</a>
+            </div>
+            <div id="tv-preview-grid" class="row g-4"></div>
+          </section>
+          <div class="ad-container-inline text-center my-3">
             <script type="text/javascript">
-                atOptions = {
-                    'key' : '893cede3e801fb8a637a67d8d66be581',
-                    'format' : 'iframe',
-                    'height' : 250,
-                    'width' : 300,
-                    'params' : {}
-                };
+              atOptions = {
+                key: "893cede3e801fb8a637a67d8d66be581",
+                format: "iframe",
+                height: 250,
+                width: 300,
+                params: {},
+              };
             </script>
-            <script type="text/javascript" src="//www.highperformanceformat.com/893cede3e801fb8a637a67d8d66be581/invoke.js"></script>
-        </div>
-            <section id="tv-preview-section" class="mb-5">
-                <div class="section-header">
-                    <h2>Live TV</h2>
-                    <a href="/live-tv" class="btn btn-view-all">View All</a>
-                </div>
-                <div id="tv-preview-grid" class="row g-4">
-                    
-                </div>
-            </section>
-            <section id="sport-tv-preview-section" class="mb-5">
-                <div class="section-header">
-                    <h2>Sport TV</h2>
-                    <a href="/sport-tv" class="btn btn-view-all">View All</a>
-                </div>
-                <div id="sport-tv-preview-grid" class="row g-4">
-                  
-                </div>
-            </section>
-              <div class="ad-container-inline text-center my-3">
+            <script
+              type="text/javascript"
+              src="//www.highperformanceformat.com/893cede3e801fb8a637a67d8d66be581/invoke.js"
+            ></script>
+          </div>
+
+          <section id="sport-tv-preview-section" class="mb-5">
+            <div class="section-header">
+              <h2>Sport TV</h2>
+              <a href="/sport-tv" class="btn btn-view-all">View All</a>
+            </div>
+            <div id="sport-tv-preview-grid" class="row g-4"></div>
+          </section>
+          <div class="ad-container-inline text-center my-3">
             <script type="text/javascript">
-                atOptions = {
-                    'key' : '893cede3e801fb8a637a67d8d66be581',
-                    'format' : 'iframe',
-                    'height' : 250,
-                    'width' : 300,
-                    'params' : {}
-                };
+              atOptions = {
+                key: "893cede3e801fb8a637a67d8d66be581",
+                format: "iframe",
+                height: 250,
+                width: 300,
+                params: {},
+              };
             </script>
-            <script type="text/javascript" src="//www.highperformanceformat.com/893cede3e801fb8a637a67d8d66be581/invoke.js"></script>
-        </div>
+            <script
+              type="text/javascript"
+              src="//www.highperformanceformat.com/893cede3e801fb8a637a67d8d66be581/invoke.js"
+            ></script>
           </div>
         </div>
+      </div>
+      <div class="ad-container-inline text-center my-3">
+        <script type="text/javascript">
+          atOptions = {
+            key: "893cede3e801fb8a637a67d8d66be581",
+            format: "iframe",
+            height: 250,
+            width: 300,
+            params: {},
+          };
+        </script>
+        <script
+          type="text/javascript"
+          src="//www.highperformanceformat.com/893cede3e801fb8a637a67d8d66be581/invoke.js"
+        ></script>
+      </div>
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script type="text/javascript" src="//pl28185701.effectivegatecpm.com/f3/7d/e8/f37de80398b45c2353a10642acd72f18.js"></script>
+    <script
+      type="text/javascript"
+      src="//pl28185701.effectivegatecpm.com/f3/7d/e8/f37de80398b45c2353a10642acd72f18.js"
+    ></script>
     <script>
       document.addEventListener("DOMContentLoaded", function () {
         const mainView = document.getElementById("main-view");
@@ -240,8 +266,8 @@
         const sportTvGrid = document.getElementById("sport-tv-preview-grid");
 
         function openPlayerPage(item) {
-            const isTv = "logo" in item;
-            window.location.href = `/play/${isTv ? 'tv' : 'sport'}/${item.id}`;
+          const isTv = "logo" in item;
+          window.location.href = `/play/${isTv ? "tv" : "sport"}/${item.id}`;
         }
 
         function createMatchCard(match) {
@@ -261,9 +287,11 @@
                     <div class="item-status">${match.status}</div>
                 </div>
             </div>`;
-            
+
           if (match.status === "LIVE" && match.m3u8_link) {
-            cardWrapper.firstElementChild.addEventListener("click", () => openPlayerPage(match));
+            cardWrapper.firstElementChild.addEventListener("click", () =>
+              openPlayerPage(match)
+            );
           }
           return cardWrapper;
         }
@@ -275,7 +303,7 @@
           if (channel.logo) {
             imageHtml = `<div class="img-container"><img src="${channel.logo}" alt="${channel.name}" onerror="this.outerHTML = '<div class=\'img-container\'><i class=\'fa-solid fa-tv\'></i></div>';"></div>`;
           }
-          
+
           cardWrapper.innerHTML = `
             <div class="item-card h-100">
                 ${imageHtml}
@@ -284,55 +312,61 @@
                     <div class="item-title">${channel.name}</div>
                 </div>
             </div>`;
-          
-          cardWrapper.firstElementChild.addEventListener("click", () => openPlayerPage(channel));
+
+          cardWrapper.firstElementChild.addEventListener("click", () =>
+            openPlayerPage(channel)
+          );
           return cardWrapper;
         }
 
         async function loadAllPreviews() {
-            try {
-                const [matchesRes, tvRes, sportTvRes] = await Promise.all([
-                    fetch("/api/matches"),
-                    fetch("/api/tv"),
-                    fetch("/api/sport-tv")
-                ]);
+          try {
+            const [matchesRes, tvRes, sportTvRes] = await Promise.all([
+              fetch("/api/matches"),
+              fetch("/api/tv"),
+              fetch("/api/sport-tv"),
+            ]);
 
-                const allMatches = await matchesRes.json();
-                const allTvChannels = await tvRes.json();
-                const allSportTvChannels = await sportTvRes.json();
+            const allMatches = await matchesRes.json();
+            const allTvChannels = await tvRes.json();
+            const allSportTvChannels = await sportTvRes.json();
 
-                const liveMatches = allMatches.filter(m => m.status === 'LIVE');
-                liveMatches.slice(0, 4).forEach(match => {
-                    sportsGrid.appendChild(createMatchCard(match));
-                });
-                if (liveMatches.length === 0) {
-                    sportsGrid.innerHTML = '<p>No live matches at the moment.</p>';
-                }
-
-                allTvChannels.slice(0, 4).forEach(channel => {
-                    if (channel.name && channel.url) {
-                        tvGrid.appendChild(createTvCard(channel));
-                    }
-                });
-                if (allTvChannels.length === 0) {
-                    tvGrid.innerHTML = '<p>No TV channels available at the moment.</p>';
-                }
-
-                allSportTvChannels.slice(0, 4).forEach(channel => {
-                    if (channel.name && channel.url) {
-                        sportTvGrid.appendChild(createTvCard(channel));
-                    }
-                });
-                if (allSportTvChannels.length === 0) {
-                    sportTvGrid.innerHTML = '<p>No Sport TV channels available at the moment.</p>';
-                }
-
-            } catch (error) {
-                console.error("Failed to load previews:", error);
-                sportsGrid.innerHTML = '<p class="text-danger">Could not load sports content.</p>';
-                tvGrid.innerHTML = '<p class="text-danger">Could not load TV content.</p>';
-                sportTvGrid.innerHTML = '<p class="text-danger">Could not load Sport TV content.</p>';
+            const liveMatches = allMatches.filter((m) => m.status === "LIVE");
+            liveMatches.slice(0, 4).forEach((match) => {
+              sportsGrid.appendChild(createMatchCard(match));
+            });
+            if (liveMatches.length === 0) {
+              sportsGrid.innerHTML = "<p>No live matches at the moment.</p>";
             }
+
+            allTvChannels.slice(0, 4).forEach((channel) => {
+              if (channel.name && channel.url) {
+                tvGrid.appendChild(createTvCard(channel));
+              }
+            });
+            if (allTvChannels.length === 0) {
+              tvGrid.innerHTML =
+                "<p>No TV channels available at the moment.</p>";
+            }
+
+            allSportTvChannels.slice(0, 4).forEach((channel) => {
+              if (channel.name && channel.url) {
+                sportTvGrid.appendChild(createTvCard(channel));
+              }
+            });
+            if (allSportTvChannels.length === 0) {
+              sportTvGrid.innerHTML =
+                "<p>No Sport TV channels available at the moment.</p>";
+            }
+          } catch (error) {
+            console.error("Failed to load previews:", error);
+            sportsGrid.innerHTML =
+              '<p class="text-danger">Could not load sports content.</p>';
+            tvGrid.innerHTML =
+              '<p class="text-danger">Could not load TV content.</p>';
+            sportTvGrid.innerHTML =
+              '<p class="text-danger">Could not load Sport TV content.</p>';
+          }
         }
 
         loadAllPreviews();
