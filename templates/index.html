@@ -67,18 +67,6 @@
           box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4);
       }
 
-      #loader {
-        position: fixed; left: 50%; top: 50%; z-index: 1001;
-        width: 60px; height: 60px;
-        margin: -30px 0 0 -30px;
-        border: 6px solid #f3f3f3;
-        border-radius: 50%;
-        border-top: 6px solid var(--primary-color);
-        animation: spin 1s linear infinite;
-      }
-
-      @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
       .item-card {
         background-color: var(--card-bg);
         border-radius: 12px;
@@ -185,29 +173,59 @@
             <script type="text/javascript" src="//www.highperformanceformat.com/893cede3e801fb8a637a67d8d66be581/invoke.js"></script>
         </div>
 
-        <div id="main-view" class="container mt-4" style="display: none;">
+        <div id="main-view" class="container mt-4">
           <div id="content-grid">
             <section id="sports-preview-section" class="mb-5">
                 <div class="section-header">
                     <h2>Live Sports</h2>
                     <a href="/sports" class="btn btn-view-all">View All</a>
                 </div>
-                <div id="sports-preview-grid" class="row g-4"></div>
+                <div id="sports-preview-grid" class="row g-4">
+                  
+                </div>
             </section>
+              <div class="ad-container-inline text-center my-3">
+            <script type="text/javascript">
+                atOptions = {
+                    'key' : '893cede3e801fb8a637a67d8d66be581',
+                    'format' : 'iframe',
+                    'height' : 250,
+                    'width' : 300,
+                    'params' : {}
+                };
+            </script>
+            <script type="text/javascript" src="//www.highperformanceformat.com/893cede3e801fb8a637a67d8d66be581/invoke.js"></script>
+        </div>
             <section id="tv-preview-section" class="mb-5">
                 <div class="section-header">
                     <h2>Live TV</h2>
                     <a href="/live-tv" class="btn btn-view-all">View All</a>
                 </div>
-                <div id="tv-preview-grid" class="row g-4"></div>
+                <div id="tv-preview-grid" class="row g-4">
+                    
+                </div>
             </section>
             <section id="sport-tv-preview-section" class="mb-5">
                 <div class="section-header">
                     <h2>Sport TV</h2>
                     <a href="/sport-tv" class="btn btn-view-all">View All</a>
                 </div>
-                <div id="sport-tv-preview-grid" class="row g-4"></div>
+                <div id="sport-tv-preview-grid" class="row g-4">
+                  
+                </div>
             </section>
+              <div class="ad-container-inline text-center my-3">
+            <script type="text/javascript">
+                atOptions = {
+                    'key' : '893cede3e801fb8a637a67d8d66be581',
+                    'format' : 'iframe',
+                    'height' : 250,
+                    'width' : 300,
+                    'params' : {}
+                };
+            </script>
+            <script type="text/javascript" src="//www.highperformanceformat.com/893cede3e801fb8a637a67d8d66be581/invoke.js"></script>
+        </div>
           </div>
         </div>
     </main>
@@ -217,7 +235,6 @@
     <script>
       document.addEventListener("DOMContentLoaded", function () {
         const mainView = document.getElementById("main-view");
-        const loader = document.getElementById("loader");
         const sportsGrid = document.getElementById("sports-preview-grid");
         const tvGrid = document.getElementById("tv-preview-grid");
         const sportTvGrid = document.getElementById("sport-tv-preview-grid");
@@ -227,15 +244,12 @@
             window.location.href = `/play/${isTv ? 'tv' : 'sport'}/${item.id}`;
         }
 
-        const showLoader = () => { mainView.style.display = "none"; loader.style.display = "block"; };
-        const hideLoader = () => { mainView.style.display = "block"; loader.style.display = "none"; };
-
         function createMatchCard(match) {
           const cardWrapper = document.createElement("div");
           cardWrapper.className = "col-lg-3 col-md-4 col-sm-6";
           let imageHtml = `<div class="img-container"><i class="fa-solid fa-futbol"></i></div>`;
           if (match.image) {
-            imageHtml = `<div class="img-container"><img src="${match.image}" alt="${match.title}" onerror="this.outerHTML = '<div class=\\'img-container\\'><i class=\\'fa-solid fa-futbol\\'></i></div>';"></div>`;
+            imageHtml = `<div class="img-container"><img src="${match.image}" alt="${match.title}" onerror="this.outerHTML = '<div class=\'img-container\'><i class=\'fa-solid fa-futbol\'></i></div>';"></div>`;
           }
 
           cardWrapper.innerHTML = `
@@ -259,7 +273,7 @@
           cardWrapper.className = "col-lg-3 col-md-4 col-sm-6";
           let imageHtml = `<div class="img-container"><i class="fa-solid fa-tv"></i></div>`;
           if (channel.logo) {
-            imageHtml = `<div class="img-container"><img src="${channel.logo}" alt="${channel.name}" onerror="this.outerHTML = '<div class=\\'img-container\\'><i class=\\'fa-solid fa-tv\\'></i></div>';"></div>`;
+            imageHtml = `<div class="img-container"><img src="${channel.logo}" alt="${channel.name}" onerror="this.outerHTML = '<div class=\'img-container\'><i class=\'fa-solid fa-tv\'></i></div>';"></div>`;
           }
           
           cardWrapper.innerHTML = `
@@ -276,7 +290,6 @@
         }
 
         async function loadAllPreviews() {
-            showLoader();
             try {
                 const [matchesRes, tvRes, sportTvRes] = await Promise.all([
                     fetch("/api/matches"),
@@ -319,8 +332,6 @@
                 sportsGrid.innerHTML = '<p class="text-danger">Could not load sports content.</p>';
                 tvGrid.innerHTML = '<p class="text-danger">Could not load TV content.</p>';
                 sportTvGrid.innerHTML = '<p class="text-danger">Could not load Sport TV content.</p>';
-            } finally {
-                hideLoader();
             }
         }
 

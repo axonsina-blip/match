@@ -23,18 +23,6 @@
         color: var(--text-dark);
       }
 
-      #loader {
-        position: fixed; left: 50%; top: 50%; z-index: 1001;
-        width: 60px; height: 60px;
-        margin: -30px 0 0 -30px;
-        border: 6px solid #f3f3f3;
-        border-radius: 50%;
-        border-top: 6px solid var(--primary-color);
-        animation: spin 1s linear infinite;
-      }
-
-      @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
       .item-card {
         background-color: var(--card-bg);
         border-radius: 12px;
@@ -136,7 +124,6 @@
             </script>
             <script type="text/javascript" src="//www.highperformanceformat.com/893cede3e801fb8a637a67d8d66be581/invoke.js"></script>
         </div>
-        <div id="loader"></div>
         <div id="content-grid"></div>
     </main>
     {% include 'footer.html' %}
@@ -146,7 +133,6 @@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const contentGrid = document.getElementById("content-grid");
-            const loader = document.getElementById("loader");
 
             function openPlayerPage(item) {
                 if (item.id) {
@@ -156,15 +142,12 @@
                 }
             }
 
-            const showLoader = () => { contentGrid.style.display = "none"; loader.style.display = "block"; };
-            const hideLoader = () => { contentGrid.style.display = "block"; loader.style.display = "none"; };
-
             function createMatchCard(match) {
                 const cardWrapper = document.createElement("div");
                 cardWrapper.className = "col-lg-3 col-md-4 col-sm-6";
                 let imageHtml = `<div class="img-container"><i class="fa-solid fa-futbol"></i></div>`;
                 if (match.image) {
-                    imageHtml = `<div class="img-container"><img src="${match.image}" alt="${match.title}" onerror="this.outerHTML = '<div class=\\'img-container\\'><i class=\\'fa-solid fa-futbol\\'></i></div>';"></div>`;
+                    imageHtml = `<div class="img-container"><img src="${match.image}" alt="${match.title}" onerror="this.outerHTML = '<div class=\"img-container\"><i class=\"fa-solid fa-futbol\"></i></div>';"></div>`;
                 }
 
                 cardWrapper.innerHTML = `
@@ -188,7 +171,6 @@
             }
 
             async function loadMatches() {
-                showLoader();
                 try {
                     const response = await fetch("/api/matches");
                     const allMatches = await response.json();
@@ -223,8 +205,6 @@
 
                 } catch (error) {
                     contentGrid.innerHTML = '<p class="text-center text-danger">Failed to load matches.</p>';
-                } finally {
-                    hideLoader();
                 }
             }
             loadMatches();
