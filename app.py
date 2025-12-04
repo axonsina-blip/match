@@ -177,6 +177,15 @@ def index():
     sport_tv_channels = [ch for ch in all_channels if ch.get('category') == 'Sport TV']
     return render_template('index.html', live_tv_channels=live_tv_channels, sport_tv_channels=sport_tv_channels)
 
+@app.route('/update')
+def update():
+    fetch_sport_tv_channels()
+    fetch_tv_channels()
+    matches = process_sports_on_demand()
+    if matches:
+        database.update_matches(matches)
+    return "Update initiated."
+
 @app.route('/sports')
 def sports():
     return render_template('sports.html')
