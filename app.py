@@ -13,6 +13,7 @@ from flask_socketio import SocketIO, emit
 import database
 import threading
 import logging
+from concurrent.futures import ThreadPoolExecutor
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key'
@@ -102,8 +103,34 @@ def fetch_m3u_channels():
         print(f"An error occurred in fetch_m3u_channels: {e}")
         return []
 
+from concurrent.futures import ThreadPoolExecutor
+
+# ... (other imports remain the same) ...
+
+# This new function checks if a URL is accessible
+def is_url_accessible(channel):
+    """Checks if a channel's URL is accessible by making a HEAD request."""
+    url = channel.get('url')
+    if not url:
+        return False
+    try:
+        # Use a short timeout to avoid long waits
+        # The stream=True parameter avoids downloading the full content
+        response = requests.head(url, timeout=5, stream=True, allow_redirects=True)
+        # Check for a successful status code (2xx)
+        if response.status_code >= 200 and response.status_code < 300:
+            print(f"URL is accessible: {url}")
+            return True
+        else:
+            print(f"URL is not accessible (Status: {response.status_code}): {url}")
+            return False
+    except requests.RequestException as e:
+        # This catches connection errors, timeouts, etc.
+        print(f"Failed to connect to URL: {url} ({e})")
+        return False
+
 def fetch_and_update_all_channels():
-    """Fetches channels from all sources, combines them, and updates the database."""
+    """Fetches channels from all sources, validates them, and updates the database."""
     print("Fetching and updating all channels...")
     
     all_channels = []
@@ -115,14 +142,28 @@ def fetch_and_update_all_channels():
     seen_urls = set()
     unique_channels = []
     for channel in all_channels:
-        if channel['url'] not in seen_urls:
+        if channel.get('url') and channel['url'] not in seen_urls:
             unique_channels.append(channel)
             seen_urls.add(channel['url'])
+
+    print(f"Found {len(unique_channels)} unique channels. Now validating...")
+
+    # Validate channels in parallel to speed up the process
+    accessible_channels = []
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        # Map the is_url_accessible function to each channel
+        results = executor.map(is_url_accessible, unique_channels)
+        # Collect channels that returned True
+        for channel, is_accessible in zip(unique_channels, results):
+            if is_accessible:
+                accessible_channels.append(channel)
+
+    print(f"Found {len(accessible_channels)} accessible channels after validation.")
             
-    if unique_channels:
-        database.update_channels(unique_channels)
+    if accessible_channels:
+        database.update_channels(accessible_channels)
     else:
-        print("No channels found from any source.")
+        print("No accessible channels found to update.")
 
 def process_sports_on_demand():
     """Scrapes sports match data on demand and returns it."""
@@ -171,7 +212,7 @@ def update_all_channels_periodically():
     while True:
         print("Periodically updating all channels...")
         fetch_and_update_all_channels()
-        time.sleep(300)
+        time.sleep(9600)
 
 def update_sports_periodically():
     """Periodically fetches and updates sports matches in the database."""
