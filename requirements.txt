@@ -7,3 +7,5 @@ python-engineio
 python-socketio
 APScheduler
 lxml
+supabase
+python-dotenv

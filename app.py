@@ -1,3 +1,6 @@
+from dotenv import load_dotenv
+load_dotenv() # Load environment variables from .env file
+
 from flask import Flask, jsonify, render_template, abort, request, Response
 import requests
 from bs4 import BeautifulSoup
@@ -183,8 +186,16 @@ def rewrite_m3u8(content, base_url, referer, origin):
     lines = content.decode('utf-8', errors='ignore').split('\n')
     rewritten_lines = []
     for line in lines:
-        if line.strip().endswith('.ts') or line.strip().endswith('.m3u8'):
-            rewritten_lines.append(f"/stream?url={quote(urljoin(base_url, line))}&referer={quote(referer)}&origin={quote(origin)}")
+        line_stripped = line.strip()
+        
+        # Ignore comments and empty lines
+        if not line_stripped or line_stripped.startswith('#'):
+            rewritten_lines.append(line)
+            continue
+            
+        path_part = line_stripped.split('?')[0]
+        if path_part.endswith('.ts') or path_part.endswith('.m3u8'):
+            rewritten_lines.append(f"/stream?url={quote(urljoin(base_url, line_stripped))}&referer={quote(referer)}&origin={quote(origin)}")
         else:
             rewritten_lines.append(line)
     return '\n'.join(rewritten_lines)
@@ -224,12 +235,12 @@ def stream():
         if 'application/vnd.apple.mpegurl' in content_type or '.m3u8' in url:
             try:
                 rewritten_content = rewrite_m3u8(r.content, url, referer, origin)
-                return Response(rewritten_content, mimetype='application/vnd.apple.mpegurl', headers={'Access-Control-Allow-Origin': '*'})
+                return Response(rewritten_content, mimetype='application/vnd.apple.mpegurl', headers={'Access-Control-Allow-Origin': '*'}) 
             except Exception as e:
                 app.logger.error(f"Error in rewrite_m3u8: {e}")
                 return f"Error rewriting M3U8: {e}", 500
         
-        return Response(r.iter_content(chunk_size=1024), content_type=r.headers['Content-Type'], headers={'Access-Control-Allow-Origin': '*'})
+        return Response(r.iter_content(chunk_size=1024), content_type=r.headers['Content-Type'], headers={'Access-Control-Allow-Origin': '*'}) 
 
     except requests.exceptions.RequestException as e:
         app.logger.error(f"Error fetching stream: {e}")
@@ -415,7 +426,7 @@ def get_play_data(content_type, content_id):
 
 # --- Initial Setup ---
 def init_app():
-    database.init_db()
+    # database.init_db() # No longer needed after migrating to Supabase
     # Periodically update all channels
     threading.Thread(target=update_all_channels_periodically).start()
     # Periodically update sports matches
