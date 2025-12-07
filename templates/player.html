@@ -96,24 +96,7 @@
     {% include 'header.html' %}
     <main class="flex-grow-1 container-fluid mt-4 px-4">
         <div class="ad-container-top text-center my-3">
-            <!-- Desktop Ad -->
-            <div class="d-none d-md-block">
-                <script type="text/javascript">
-                    atOptions = {
-                        'key' : 'c6bcfb368fb53d174a939db874870337',
-                        'format' : 'iframe',
-                        'height' : 90,
-                        'width' : 728,
-                        'params' : {}
-                    };
-                </script>
-                <script type="text/javascript" src="//www.highperformanceformat.com/c6bcfb368fb53d174a939db874870337/invoke.js"></script>
-            </div>
-            <!-- Mobile Ad -->
-            <div class="d-block d-md-none">
-                <script async="async" data-cfasync="false" src="//pl28181192.effectivegatecpm.com/b7968b10f22df277ecc62b56ccdd93e4/invoke.js"></script>
-                <div id="container-b7968b10f22df277ecc62b56ccdd93e4"></div>
-            </div>
+            <!-- Ads -->
         </div>
         <div class="row">
             <!-- Main Player -->
@@ -128,32 +111,9 @@
             <div class="col-lg-4 related-content-sidebar">
                 <h4 class="mb-3">Related Channels</h4>
                 <div class="ad-container-inline text-center my-3">
-                    <script type="text/javascript">
-                        atOptions = {
-                            'key' : '893cede3e801fb8a637a67d8d66be581',
-                            'format' : 'iframe',
-                            'height' : 250,
-                            'width' : 300,
-                            'params' : {}
-                        };
-                    </script>
-                    <script type="text/javascript" src="//www.highperformanceformat.com/893cede3e801fb8a637a67d8d66be581/invoke.js"></script>
+                    <!-- Ads -->
                 </div>
                 <ul class="list-unstyled" id="related-content-list">
-                    {% for item in related_content %}
-                    <li>
-                        <div class="related-item related-link" data-id="{{ item.id }}" data-type="{{ item.type }}">
-                            {% if item.type == 'tv' %}
-                            <img class="related-thumbnail" src="{{ item.logo }}" onerror="this.outerHTML = '<div class=\'related-thumbnail\'><i class=\'fa-solid fa-tv\'></i></div>';">
-                            {% else %}
-                            <img class="related-thumbnail" src="{{ item.image }}" onerror="this.outerHTML = '<div class=\'related-thumbnail\'><i class=\'fa-solid fa-futbol\'></i></div>';">
-                            {% endif %}
-                            <div class="related-info">
-                                <h5 class="related-title">{{ item.name }}</h5>
-                            </div>
-                        </div>
-                    </li>
-                    {% endfor %}
                 </ul>
             </div>
         </div>
@@ -161,18 +121,17 @@
     {% include 'footer.html' %}
 
     <script src="https://vjs.zencdn.net/8.23.4/video.min.js"></script>
-    <!-- <script type="text/javascript" src="//pl28185701.effectivegatecpm.com/f3/7d/e8/f37de80398b45c2353a10642acd72f18.js"></script> -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const player = videojs('video-player', { autoplay: true, controls: true });
             const videoTitle = document.getElementById('video-title');
             const relatedContentList = document.getElementById('related-content-list');
             
-            let relatedItems = [];
-            let currentContentId = {{ content.id }};
+            const contentId = {{ content.id }};
+            const contentType = "{{ content.type }}";
 
             function playVideo(url, title) {
-                player.src({ src: url, type: 'application/x-mpegURL' }); // Use application/x-mpegURL for HLS streams
+                player.src({ src: url, type: 'application/x-mpegURL' });
                 player.play();
 
                 videoTitle.textContent = title;
@@ -180,17 +139,14 @@
             }
             
             function updateRelatedContent(newRelatedItems) {
-                relatedItems = newRelatedItems;
                 relatedContentList.innerHTML = '';
-                relatedItems.forEach(item => {
+                newRelatedItems.forEach(item => {
                     const li = document.createElement('li');
                     let imageHtml;
                     if (item.type === 'tv' || item.category === 'Live TV') {
-                        imageHtml = `<img class="related-thumbnail" src="${item.logo}" onerror="this.outerHTML = '<div class=\'related-thumbnail\'><i class=\'fa-solid fa-tv\'></i></div>';">
-`;
+                        imageHtml = `<img class="related-thumbnail" src="${item.logo}" onerror="this.outerHTML = '<div class=\\'related-thumbnail\\'><i class=\\'fa-solid fa-tv\\'></i></div>';">`;
                     } else {
-                        imageHtml = `<img class="related-thumbnail" src="${item.image}" onerror="this.outerHTML = '<div class=\'related-thumbnail\'><i class=\'fa-solid fa-futbol\'></i></div>';">
-`;
+                        imageHtml = `<img class="related-thumbnail" src="${item.image}" onerror="this.outerHTML = '<div class=\\'related-thumbnail\\'><i class=\\'fa-solid fa-futbol\\'></i></div>';">`;
                     }
                     
                     const itemHtml = `
@@ -206,10 +162,21 @@
                 });
             }
 
+            function loadContent(type, id) {
+                fetch(`/api/play/${type}/${id}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.content && data.content.url) {
+                            playVideo(data.content.url, data.content.name);
+                            updateRelatedContent(data.related);
+                            history.pushState(null, '', `/play/${type}/${id}`);
+                        }
+                    })
+                    .catch(err => console.error('Error fetching content data:', err));
+            }
+
             // Initial setup
-            relatedItems = {{ related_content|tojson }};
-            updateRelatedContent(relatedItems);
-            playVideo("{{ content.url }}", "{{ content.name }}");
+            loadContent(contentType, contentId);
 
             // Event delegation for related content
             relatedContentList.addEventListener('click', function(e) {
@@ -217,19 +184,8 @@
                 if (link) {
                     e.preventDefault();
                     const type = link.dataset.type;
-                    const contentId = link.dataset.id;
-                    
-                    fetch(`/api/play/${type}/${contentId}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.content && data.content.url) {
-                                currentContentId = data.content.id;
-                                playVideo(data.content.url, data.content.name);
-                                updateRelatedContent(data.related);
-                                history.pushState(null, '', `/play/${type}/${contentId}`);
-                            }
-                        })
-                        .catch(err => console.error('Error fetching content data:', err));
+                    const id = link.dataset.id;
+                    loadContent(type, id);
                 }
             });
         });

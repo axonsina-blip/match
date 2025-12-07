@@ -19,6 +19,19 @@
         .navbar-nav .nav-link:hover, .navbar-nav .nav-link.active {
             color: #ffc107;
         }
+        .search-form {
+            display: flex;
+            align-items: center;
+        }
+        .search-input {
+            border-radius: 50px 0 0 50px;
+            border-right: none;
+        }
+        .search-btn {
+            border-radius: 0 50px 50px 0;
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
     </style>
     <nav class="navbar navbar-expand-lg">
         <div class="container-fluid">
@@ -27,21 +40,50 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
+                <ul class="navbar-nav me-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="/">Home</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/sports">Sports</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/live-tv">Live TV</a>
+                    <li class="nav-item dropdown" id="tv-categories-dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                          Live TV
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown" id="tv-categories-menu">
+                          <li><a class="dropdown-item" href="/live-tv">All Channels</a></li>
+                          <li><hr class="dropdown-divider"></li>
+                        </ul>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/sport-tv">Sport TV</a>
                     </li>
                 </ul>
+                <form class="d-flex search-form" action="/search" method="get">
+                    <input class="form-control search-input" type="search" placeholder="Search" aria-label="Search" name="q">
+                    <button class="btn btn-outline-success search-btn" type="submit"><i class="fa-solid fa-search"></i></button>
+                </form>
             </div>
         </div>
     </nav>
 </header>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    fetch('/api/categories')
+        .then(response => response.json())
+        .then(categories => {
+            const categoriesMenu = document.getElementById('tv-categories-menu');
+            categories.forEach(category => {
+                const listItem = document.createElement('li');
+                const link = document.createElement('a');
+                link.className = 'dropdown-item';
+                link.href = `/live-tv?category=${encodeURIComponent(category)}`;
+                link.textContent = category;
+                listItem.appendChild(link);
+                categoriesMenu.appendChild(listItem);
+            });
+        })
+        .catch(error => console.error('Error fetching categories:', error));
+});
+</script>
