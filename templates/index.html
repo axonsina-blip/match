@@ -180,62 +180,57 @@
       </div>
 
       <div id="main-view" class="container mt-4">
-        <div id="content-grid">
-          <section id="sports-preview-section" class="mb-5">
+    <div id="content-grid">
+        {% if live_matches %}
+        <section class="mb-5">
             <div class="section-header">
-              <h2>Live Sports</h2>
-              <a href="/sports" class="btn btn-view-all">View All</a>
+                <h2>Live Sports</h2>
+                <a href="/sports" class="btn btn-view-all">View All</a>
             </div>
-            <div id="sports-preview-grid" class="row g-4"></div>
-          </section>
+            <div class="row g-4">
+                {% for match in live_matches[:4] %}
+                    <div class="col-lg-3 col-md-4 col-sm-6">
+                        <div class="item-card h-100" onclick="window.location.href='/play/sport/{{ match.id }}'">
+                            <div class="img-container">
+                                <img src="{{ match.image }}" alt="{{ match.title }}" onerror="this.outerHTML = '<div class=\'img-container\'><i class=\'fa-solid fa-futbol\'></i></div>';">
+                            </div>
+                            <div class="play-icon-overlay"><i class="fa-solid fa-play"></i></div>
+                            <div class="item-info">
+                                <div class="item-title">{{ match.title }}</div>
+                                <div class="item-status">{{ match.status }}</div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
 
-          <section id="tv-preview-section" class="mb-5">
-            <div class="section-header">
-              <h2>Live TV</h2>
-              <a href="/live-tv" class="btn btn-view-all">View All</a>
-            </div>
-            <div id="tv-preview-grid" class="row g-4"></div>
-          </section>
-          <div class="ad-container-inline text-center my-3">
-            <script type="text/javascript">
-              atOptions = {
-                key: "893cede3e801fb8a637a67d8d66be581",
-                format: "iframe",
-                height: 250,
-                width: 300,
-                params: {},
-              };
-            </script>
-            <script
-              type="text/javascript"
-              src="//www.highperformanceformat.com/893cede3e801fb8a637a67d8d66be581/invoke.js"
-            ></script>
-          </div>
-
-          <section id="sport-tv-preview-section" class="mb-5">
-            <div class="section-header">
-              <h2>Sport TV</h2>
-              <a href="/sport-tv" class="btn btn-view-all">View All</a>
-            </div>
-            <div id="sport-tv-preview-grid" class="row g-4"></div>
-          </section>
-          <div class="ad-container-inline text-center my-3">
-            <script type="text/javascript">
-              atOptions = {
-                key: "893cede3e801fb8a637a67d8d66be581",
-                format: "iframe",
-                height: 250,
-                width: 300,
-                params: {},
-              };
-            </script>
-            <script
-              type="text/javascript"
-              src="//www.highperformanceformat.com/893cede3e801fb8a637a67d8d66be581/invoke.js"
-            ></script>
-          </div>
-        </div>
-      </div>
+        {% for category, channels in categorized_channels.items() %}
+            <section class="mb-5">
+                <div class="section-header">
+                    <h2>{{ category }}</h2>
+                    <a href="/live-tv?category={{ category|urlencode }}" class="btn btn-view-all">View All</a>
+                </div>
+                <div class="row g-4">
+                    {% for channel in channels[:4] %}
+                        <div class="col-lg-3 col-md-4 col-sm-6">
+                            <div class="item-card h-100" onclick="window.location.href='/play/tv/{{ channel.id }}'">
+                                <div class="img-container">
+                                    <img src="{{ channel.logo }}" alt="{{ channel.name }}" onerror="this.outerHTML = '<div class=\'img-container\'><i class=\'fa-solid fa-tv\'></i></div>';">
+                                </div>
+                                <div class="play-icon-overlay"><i class="fa-solid fa-play"></i></div>
+                                <div class="item-info">
+                                    <div class="item-title">{{ channel.name }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </section>
+        {% endfor %}
+    </div>
+</div>
       <div class="ad-container-inline text-center my-3">
         <script type="text/javascript">
           atOptions = {

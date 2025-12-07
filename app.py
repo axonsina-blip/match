@@ -242,10 +242,18 @@ def stream():
 @app.route('/')
 def index():
     all_channels = database.get_all_channels()
-    # This part might need adjustment based on how we want to display channels on the homepage
-    live_tv_channels = [ch for ch in all_channels if ch.get('category') == 'Live TV']
-    sport_tv_channels = [ch for ch in all_channels if ch.get('category') == 'Sport TV']
-    return render_template('index.html', live_tv_channels=live_tv_channels, sport_tv_channels=sport_tv_channels)
+    all_matches = database.get_all_matches()
+
+    categorized_channels = {}
+    for channel in all_channels:
+        category = channel.get('category', 'Uncategorized')
+        if category not in categorized_channels:
+            categorized_channels[category] = []
+        categorized_channels[category].append(channel)
+    
+    live_matches = [match for match in all_matches if match.get('status') == 'LIVE']
+
+    return render_template('index.html', categorized_channels=categorized_channels, live_matches=live_matches)
 
 @app.route('/update')
 def update():
@@ -348,6 +356,35 @@ def get_categories():
 def get_sport_tv_channels():
     channels = [ch for ch in database.get_all_channels() if ch.get('category') == 'Sport TV']
     return jsonify(channels)
+
+@app.route('/api/search')
+def api_search():
+    query = request.args.get('q', '').strip()
+    
+    if not query:
+        return jsonify([])
+
+    all_channels = database.get_all_channels()
+    all_matches = database.get_all_matches()
+
+    channel_results = [
+        ch for ch in all_channels 
+        if query.lower() in ch.get('name', '').lower()
+    ]
+    for ch in channel_results:
+        ch['type'] = 'tv'
+
+    match_results = [
+        m for m in all_matches
+        if query.lower() in m.get('title', '').lower()
+    ]
+    for m in match_results:
+        m['type'] = 'sport'
+        m['name'] = m.get('title')
+
+    results = channel_results + match_results
+    
+    return jsonify(results)
 
 @app.route('/api/play/<string:content_type>/<int:content_id>')
 def get_play_data(content_type, content_id):

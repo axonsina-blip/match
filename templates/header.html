@@ -20,17 +20,47 @@
             color: #ffc107;
         }
         .search-form {
-            display: flex;
-            align-items: center;
+            position: relative;
         }
         .search-input {
-            border-radius: 50px 0 0 50px;
-            border-right: none;
+            border-radius: 50px;
         }
-        .search-btn {
-            border-radius: 0 50px 50px 0;
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .search-result-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.25rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .search-result-item:hover {
+            background-color: #f8f9fa;
+        }
+        .search-result-item img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-right: 1rem;
+        }
+        .search-result-info {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        .search-result-category {
+            font-size: 0.8rem;
+            color: #6c757d;
         }
     </style>
     <nav class="navbar navbar-expand-lg">
@@ -60,10 +90,10 @@
                         <a class="nav-link" href="/sport-tv">Sport TV</a>
                     </li>
                 </ul>
-                <form class="d-flex search-form" action="/search" method="get">
-                    <input class="form-control search-input" type="search" placeholder="Search" aria-label="Search" name="q">
-                    <button class="btn btn-outline-success search-btn" type="submit"><i class="fa-solid fa-search"></i></button>
-                </form>
+                <div class="search-form">
+                    <input class="form-control search-input" type="search" placeholder="Search" aria-label="Search" id="live-search-input">
+                    <div class="search-results d-none" id="live-search-results"></div>
+                </div>
             </div>
         </div>
     </nav>
@@ -85,5 +115,63 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         })
         .catch(error => console.error('Error fetching categories:', error));
+
+    const searchInput = document.getElementById('live-search-input');
+    const searchResults = document.getElementById('live-search-results');
+
+    let searchTimeout;
+
+    searchInput.addEventListener('input', function() {
+        const query = this.value.trim();
+
+        clearTimeout(searchTimeout);
+        if (query.length < 2) {
+            searchResults.classList.add('d-none');
+            return;
+        }
+
+        searchTimeout = setTimeout(() => {
+            fetch(`/api/search?q=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    searchResults.innerHTML = '';
+                    if (data.length > 0) {
+                        searchResults.classList.remove('d-none');
+                        data.forEach(item => {
+                            const resultItem = document.createElement('div');
+                            resultItem.className = 'search-result-item';
+                            resultItem.addEventListener('click', function() {
+                                window.location.href = `/play/${item.type}/${item.id}`;
+                            });
+
+                            let image = '/static/tv.jpg';
+                            if (item.type === 'tv' && item.logo) {
+                                image = item.logo;
+                            } else if (item.type === 'sport' && item.image) {
+                                image = item.image;
+                            }
+
+                            resultItem.innerHTML = `
+                                <img src="${image}" alt="${item.name}">
+                                <div>
+                                    <div class="search-result-info">${item.name}</div>
+                                    <div class="search-result-category">${item.category || ''}</div>
+                                </div>
+                            `;
+                            searchResults.appendChild(resultItem);
+                        });
+                    } else {
+                        searchResults.classList.add('d-none');
+                    }
+                })
+                .catch(error => console.error('Error fetching search results:', error));
+        }, 300); // Debounce for 300ms
+    });
+
+    document.addEventListener('click', function(event) {
+        if (!searchInput.contains(event.target)) {
+            searchResults.classList.add('d-none');
+        }
+    });
 });
 </script>
