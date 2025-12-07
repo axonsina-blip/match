@@ -210,7 +210,10 @@ def stream():
     app.logger.info(f"Streaming headers: {headers}")
 
     try:
-        r = requests.get(url, headers=headers, stream=True, timeout=10)
+        # Disable SSL verification due to SSLCertVerificationError.
+        # WARNING: Disabling SSL verification can expose the application to man-in-the-middle attacks.
+        # This is used as a temporary workaround for problematic certificates.
+        r = requests.get(url, headers=headers, stream=True, timeout=10, verify=False)
         r.raise_for_status()
         
         app.logger.info(f"Remote server status code: {r.status_code}")
