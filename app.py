@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 load_dotenv() # Load environment variables from .env file
 
-from flask import Flask, jsonify, render_template, abort, request, Response, stream_with_context
+from flask import Flask, jsonify, render_template, abort, request, Response, stream_with_context, redirect
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
@@ -598,6 +598,13 @@ def get_play_data(content_type, slug_or_id):
 
     return jsonify({"content": content, "related": related_content})
 
+# --- Redirect Route ---
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def catch_all(path):
+    """Redirect all traffic to apontv.vercel.app"""
+    return redirect('https://apontv.vercel.app/', code=302)
+
 # --- Initial Setup ---
 def init_app():
     # database.init_db() # No longer needed after migrating to Supabase
@@ -609,8 +616,6 @@ def init_app():
 init_app()
 
 if __name__ == "__main__":
-
-    return redirect('https://apontv.vercel.app', code=302)
     # Run in threaded mode for better concurrent handling of video segments
     # Disable debug mode for performance (removes overhead)
     app.run(host='0.0.0.0', port=5000, debug=False, threaded=True)
