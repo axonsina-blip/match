@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 load_dotenv() # Load environment variables from .env file
 
-from flask import Flask, jsonify, render_template, abort, request, Response
+from flask import Flask, jsonify, render_template, abort, request, Response, stream_with_context
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
@@ -312,7 +312,7 @@ def stream():
                 app.logger.error(f"Error in rewrite_m3u8: {e}")
                 return f"Error rewriting M3U8: {e}", 500
         
-        return Response(r.iter_content(chunk_size=128*1024), content_type=r.headers['Content-Type'], headers={'Access-Control-Allow-Origin': '*'}) 
+        return Response(stream_with_context(r.iter_content(chunk_size=512*1024)), content_type=r.headers['Content-Type'], headers={'Access-Control-Allow-Origin': '*'}) 
 
     except requests.exceptions.RequestException as e:
         app.logger.error(f"Error fetching stream: {e}")
@@ -609,4 +609,6 @@ def init_app():
 init_app()
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    # Run in threaded mode for better concurrent handling of video segments
+    # Disable debug mode for performance (removes overhead)
+    app.run(host='0.0.0.0', port=5000, debug=False, threaded=True)
