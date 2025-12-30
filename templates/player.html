@@ -1,194 +1,290 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{{ content.name }} - Stremmer</title>
-    <link rel="icon" href="/static/icon.png">
-    <meta property="og:image" content="/static/logo.png">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="icon" href="/static/icon.png" />
+    <meta property="og:image" content="/static/logo.png" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
     <link href="https://vjs.zencdn.net/8.23.4/video-js.css" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary-color: #ffc107;
-            --light-bg: #f8f9fa;
-            --card-bg: #ffffff;
-            --text-dark: #212529;
-            --text-secondary: #6c757d;
-            --border-color: #e0e0e0;
-        }
-
-        body {
-            background-color: var(--light-bg);
-            color: var(--text-dark);
-            font-family: 'Roboto', sans-serif;
-        }
-
-        #video-container {
-            width: 100%;
-            background-color: #000;
-            border-radius: 12px;
-            overflow: hidden;
-            aspect-ratio: 16/9;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-        }
-
-        .video-js {
-            width: 100%;
-            height: 100%;
-        }
-
-        #video-title {
-            font-size: 1.75rem;
-            font-weight: 700;
-            margin-top: 1rem;
-        }
-        
-        .related-content-sidebar {
-            max-height: 85vh;
-            overflow-y: auto;
-            padding-left: 2rem;
-        }
-
-        .related-item {
-            display: flex;
-            margin-bottom: 1rem;
-            cursor: pointer;
-            background-color: var(--card-bg);
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            transition: all 0.2s ease-in-out;
-        }
-
-        .related-item:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.12);
-        }
-
-        .related-thumbnail {
-            flex-shrink: 0;
-            width: 160px;
-            height: 90px;
-            object-fit: cover;
-            border-radius: 8px 0 0 8px;
-            background-color: #f0f0f0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            color: #ccc;
-        }
-
-        .related-info {
-            padding: 0.75rem 1rem;
-        }
-
-        .related-title {
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: var(--text-dark);
-        }
-    </style>
-</head>
-<body class="d-flex flex-column min-vh-100">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="d-flex flex-column min-vh-100">
     {% include 'header.html' %}
     <main class="flex-grow-1 container-fluid mt-4 px-4">
-        <div class="ad-container-top text-center my-3">
-            <!-- Ads -->
+      <div class="ad-container-top text-center my-4">
+        <!-- Desktop Ad -->
+        <div class="d-none d-md-block">
+          <script type="text/javascript">
+            atOptions = {
+              key: "c6bcfb368fb53d174a939db874870337",
+              format: "iframe",
+              height: 90,
+              width: 728,
+              params: {},
+            };
+          </script>
+          <script
+            type="text/javascript"
+            src="//www.highperformanceformat.com/c6bcfb368fb53d174a939db874870337/invoke.js"
+          ></script>
         </div>
-        <div class="row">
-            <!-- Main Player -->
-            <div class="col-lg-8">
-                <div id="video-container">
-                    <video id="video-player" class="video-js vjs-default-skin" controls autoplay></video>
-                </div>
-                <h2 id="video-title" class="mt-3">{{ content.name }}</h2>
-            </div>
+        <!-- Mobile Ad -->
+        <div class="d-block d-md-none">
+          <script
+            async="async"
+            data-cfasync="false"
+            src="//pl28181192.effectivegatecpm.com/b7968b10f22df277ecc62b56ccdd93e4/invoke.js"
+          ></script>
+          <div id="container-b7968b10f22df277ecc62b56ccdd93e4"></div>
+        </div>
+      </div>
 
-            <!-- Related Content Sidebar -->
-            <div class="col-lg-4 related-content-sidebar">
-                <h4 class="mb-3">Related Channels</h4>
-                <div class="ad-container-inline text-center my-3">
-                    <!-- Ads -->
-                </div>
-                <ul class="list-unstyled" id="related-content-list">
-                </ul>
-            </div>
+      <div class="row g-4">
+        <!-- Main Player -->
+        <div class="col-lg-8">
+          <div id="video-container">
+            <video
+              id="video-player"
+              class="video-js vjs-default-skin vjs-big-play-centered"
+              controls
+              autoplay
+              playsinline
+              preload="auto"
+            ></video>
+          </div>
+          <div class="d-flex align-items-center justify-content-between mt-3">
+            <h2 id="video-title" class="mb-0">{{ content.name }}</h2>
+            <button
+              class="btn btn-sm btn-outline-light"
+              onclick="location.reload()"
+            >
+              <i class="fa-solid fa-arrows-rotate"></i> Reload
+            </button>
+          </div>
         </div>
+
+        <!-- Related Content Sidebar -->
+        <div class="col-lg-4 related-content-sidebar">
+          <h4 class="mb-3">Related Channels</h4>
+          <div class="ad-container-inline text-center my-3">
+            <script type="text/javascript">
+              atOptions = {
+                key: "893cede3e801fb8a637a67d8d66be581",
+                format: "iframe",
+                height: 250,
+                width: 300,
+                params: {},
+              };
+            </script>
+            <script
+              type="text/javascript"
+              src="//www.highperformanceformat.com/893cede3e801fb8a637a67d8d66be581/invoke.js"
+            ></script>
+          </div>
+          <ul class="list-unstyled" id="related-content-list"></ul>
+        </div>
+      </div>
     </main>
-    {% include 'footer.html' %}
-
+    <link
+      href="https://unpkg.com/@silvermine/videojs-quality-selector/dist/css/quality-selector.css"
+      rel="stylesheet"
+    />
     <script src="https://vjs.zencdn.net/8.23.4/video.min.js"></script>
+    <script src="https://unpkg.com/@silvermine/videojs-quality-selector/dist/js/silvermine-videojs-quality-selector.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const player = videojs('video-player', { autoplay: true, controls: true });
-            const videoTitle = document.getElementById('video-title');
-            const relatedContentList = document.getElementById('related-content-list');
-            
-            const contentId = {{ content.id }};
-            const contentType = "{{ content.type }}";
+      document.addEventListener('DOMContentLoaded', function () {
+          const player = videojs('video-player', {
+              autoplay: true,
+              controls: true,
+              preload: 'auto',
+              controlBar: {
+                  children: [
+                      'playToggle',
+                      'volumePanel',
+                      'currentTimeDisplay',
+                      'timeDivider',
+                      'durationDisplay',
+                      'progressControl',
+                      'liveDisplay',
+                      'remainingTimeDisplay',
+                      'customControlSpacer',
+                      'playbackRateMenuButton',
+                      'chaptersButton',
+                      'descriptionsButton',
+                      'subsCapsButton',
+                      'audioTrackButton',
+                      'qualitySelector', // Add quality selector here
+                      'fullscreenToggle'
+                  ]
+              },
+              html5: {
+                  vhs: {
+                      enableLowInitialPlaylist: true,
+                      fastQualityChange: true,
+                      overrideNative: true,
+                      // Force player to start at lowest quality (Data Saver mode)
+                      bandwidth: 10000
+                  }
+              }
+          });
 
-            function playVideo(url, title) {
-                player.src({ src: url, type: 'application/x-mpegURL' });
-                player.play();
+          // --- Custom Resolution Badge ---
+          // Create the badge element
+          const resolutionBadge = document.createElement('div');
+          resolutionBadge.className = 'vjs-resolution-badge';
+          resolutionBadge.style.cssText = `
+              position: absolute;
+              top: 10px;
+              right: 10px;
+              background-color: rgba(0, 0, 0, 0.6);
+              color: var(--primary-accent);
+              padding: 4px 8px;
+              border-radius: 4px;
+              font-size: 12px;
+              font-weight: bold;
+              z-index: 100;
+              pointer-events: none;
+              border: 1px solid rgba(255, 193, 7, 0.3);
+              backdrop-filter: blur(2px);
+          `;
+          resolutionBadge.textContent = 'Auto'; // Default
 
-                videoTitle.textContent = title;
-                document.title = `${title} - Stremmer`;
-            }
-            
-            function updateRelatedContent(newRelatedItems) {
-                relatedContentList.innerHTML = '';
-                newRelatedItems.forEach(item => {
-                    const li = document.createElement('li');
-                    let imageHtml;
-                    if (item.type === 'tv' || item.category === 'Live TV') {
-                        imageHtml = `<img class="related-thumbnail" src="${item.logo}" onerror="this.outerHTML = '<div class=\\'related-thumbnail\\'><i class=\\'fa-solid fa-tv\\'></i></div>';">`;
-                    } else {
-                        imageHtml = `<img class="related-thumbnail" src="${item.image}" onerror="this.outerHTML = '<div class=\\'related-thumbnail\\'><i class=\\'fa-solid fa-futbol\\'></i></div>';">`;
-                    }
-                    
-                    const itemHtml = `
-                        <div class="related-item related-link" data-id="${item.id}" data-type="${item.type}">
-                            ${imageHtml}
-                            <div class="related-info">
-                                <h5 class="related-title">${item.name}</h5>
-                            </div>
-                        </div>
-                    `;
-                    li.innerHTML = itemHtml;
-                    relatedContentList.appendChild(li);
-                });
-            }
+          player.ready(function() {
+              const playerEl = player.el();
+              playerEl.appendChild(resolutionBadge);
 
-            function loadContent(type, id) {
-                fetch(`/api/play/${type}/${id}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.content && data.content.url) {
-                            playVideo(data.content.url, data.content.name);
-                            updateRelatedContent(data.related);
-                            history.pushState(null, '', `/play/${type}/${id}`);
-                        }
-                    })
-                    .catch(err => console.error('Error fetching content data:', err));
-            }
+              // Periodic check for resolution changes
+              setInterval(() => {
+                  const videoParams = player.getVideoPlaybackQuality();
+                  let height = 0;
 
-            // Initial setup
-            loadContent(contentType, contentId);
+                  if (videoParams && videoParams.height) {
+                      height = videoParams.height;
+                  }
+                  else if (player.videoWidth() > 0 && player.videoHeight() > 0) {
+                       height = player.videoHeight();
+                  }
 
-            // Event delegation for related content
-            relatedContentList.addEventListener('click', function(e) {
-                const link = e.target.closest('.related-link');
-                if (link) {
-                    e.preventDefault();
-                    const type = link.dataset.type;
-                    const id = link.dataset.id;
-                    loadContent(type, id);
-                }
-            });
-        });
+                  if (height > 0) {
+                      let label = 'SD';
+                      if (height >= 2160) label = '4K';
+                      else if (height >= 1440) label = '2K';
+                      else if (height >= 1080) label = '1080p';
+                      else if (height >= 720) label = '720p';
+                      else if (height >= 480) label = '480p';
+                      else label = height + 'p';
+
+                      resolutionBadge.textContent = label;
+                      resolutionBadge.style.display = 'block';
+                  } else {
+                       resolutionBadge.textContent = 'Auto';
+                  }
+              }, 1000);
+          });
+
+          const videoTitle = document.getElementById('video-title');
+          const relatedContentList = document.getElementById('related-content-list');
+
+          // Use slug if available
+          const contentSlug = "{{ content.slug }}";
+          const contentId = {{ content.id }};
+          const contentType = "{{ content.type }}";
+
+          // Fallback init value
+          const initialIdentifier = "{{ content.slug }}" || "{{ content.id }}";
+
+          function playVideo(url, title) {
+              player.src({ src: url, type: 'application/x-mpegURL' });
+              player.play();
+
+              videoTitle.textContent = title;
+              document.title = `${title} - Stremmer`;
+          }
+
+          function updateRelatedContent(newRelatedItems) {
+              relatedContentList.innerHTML = '';
+              newRelatedItems.forEach(item => {
+                  const li = document.createElement('li');
+                  let imageHtml;
+                  if (item.type === 'tv' || item.category === 'Live TV') {
+                      imageHtml = `<img class="related-thumbnail" src="${item.logo}" onerror="this.outerHTML = '<div class=\\'related-thumbnail\\'><i class=\\'fa-solid fa-tv\\'></i></div>';">`;
+                  } else {
+                      imageHtml = `<img class="related-thumbnail" src="${item.image}" onerror="this.outerHTML = '<div class=\\'related-thumbnail\\'><i class=\\'fa-solid fa-futbol\\'></i></div>';">`;
+                  }
+
+                  // Use slug or id
+                  const itemSlug = item.slug || item.id;
+
+                  const itemHtml = `
+                      <div class="related-item related-link" data-slug="${itemSlug}" data-type="${item.type}">
+                          ${imageHtml}
+                          <div class="related-info">
+                              <h5 class="related-title">${item.name}</h5>
+                          </div>
+                      </div>
+                  `;
+                  li.innerHTML = itemHtml;
+                  relatedContentList.appendChild(li);
+              });
+          }
+
+          // Fetch content data
+          // Extract slug/id from current path: /play/tv/some-slug
+          const pathParts = window.location.pathname.split('/');
+          const initialPathType = pathParts[2];
+          const initialPathSlugOrId = pathParts[3];
+
+          function loadContent(type, slugOrId) {
+              fetch(`/api/play/${type}/${slugOrId}`)
+                  .then(response => response.json())
+                  .then(data => {
+                      if (data.error) {
+                          console.error('Error fetching content data:', data.error);
+                          return;
+                      }
+                      if (data.content && data.content.url) {
+                          playVideo(data.content.url, data.content.name);
+                          updateRelatedContent(data.related);
+                          // Only update URL if it's a new navigation
+                          if (slugOrId !== initialPathSlugOrId) {
+                               history.pushState(null, '', `/play/${type}/${slugOrId}`);
+                          }
+                      }
+                  })
+                  .catch(err => console.error('Error fetching content data:', err));
+          }
+
+          // Initial setup
+          // Use path slug if valid, otherwise fallback to template data
+          if (initialPathSlugOrId) {
+             loadContent(initialPathType, initialPathSlugOrId);
+          } else {
+             loadContent(contentType, initialIdentifier);
+          }
+
+          // Event delegation for related content
+          relatedContentList.addEventListener('click', function(e) {
+              const link = e.target.closest('.related-link');
+              if (link) {
+                  e.preventDefault();
+                  const type = link.dataset.type;
+                  const slug = link.dataset.slug;
+                  loadContent(type, slug);
+              }
+          });
+      });
     </script>
-</body>
+  </body>
 </html>
