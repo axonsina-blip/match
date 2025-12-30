@@ -609,6 +609,8 @@ def init_app():
 init_app()
 
 if __name__ == "__main__":
+
+    return redirect('https://apontv.vercel.app', code=302)
     # Run in threaded mode for better concurrent handling of video segments
     # Disable debug mode for performance (removes overhead)
     app.run(host='0.0.0.0', port=5000, debug=False, threaded=True)
